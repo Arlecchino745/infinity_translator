@@ -1,106 +1,331 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinity Translator</title>
+    <title>Infinity Translator - AI-Powered Document Translation</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.ico') }}">
 </head>
 <body>
     <div id="app">
-        <div class="welcome-message">
-            <h1 class="greeting">Ciallo～(∠・ω< )⌒★</h1>
-            <p class="sub-greeting">无视文档长度，利用LLM进行翻译与排版修正</p>
-        </div>
-        <div class="container">
-            <header class="header">
-                <div class="logo">
-                    <img src="{{ url_for('static', path='/logo.png') }}" alt="Logo">
-                    <h1>Infinity Translator</h1>
+        <!-- Navigation Header -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <img src="{{ url_for('static', path='/logo.png') }}" alt="Infinity Translator Logo" class="nav-logo">
+                    <h1 class="nav-title">Infinity Translator</h1>
                 </div>
-                <div class="provider-selector">
-                    <div class="provider-dropdown">
-                        <select v-model="selectedProvider" @change="changeProvider">
-                            <option v-for="(provider, id) in providers" :key="id" :value="id">
-                                [[ provider.name ]]
-                            </option>
-                        </select>
+                <div class="nav-controls">
+                    <div class="provider-selector">
+                        <label class="selector-label">AI Provider</label>
+                        <div class="model-dropdown" ref="providerDropdown">
+                            <button class="model-button" @click="toggleProviderList" :class="{'active': showProviderList}">
+                                <span>[[ selectedProvider && providers[selectedProvider] ? providers[selectedProvider].name : 'Select Provider' ]]</span>
+                                <svg class="dropdown-icon" :class="{'rotated': showProviderList}" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="6,9 12,15 18,9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="model-dropdown-menu" v-if="showProviderList" @click.stop>
+                                <div class="dropdown-header">
+                                    <span>Available Providers</span>
+                                    <button class="close-button" @click="showProviderList = false">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="dropdown-options">
+                                    <button class="dropdown-option" 
+                                            v-for="(provider, id) in providers" 
+                                            :key="id"
+                                            @click="selectProvider(id)"
+                                            :class="{'selected': selectedProvider === id}">
+                                        [[ provider.name ]]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="model-selector" v-if="currentProvider">
-                        <div class="selected-model" @click="toggleModelList">
-                            [[ selectedModel ? selectedModel.name : '选择模型' ]]
-                        </div>
-                        <div class="model-list" v-if="showModelList">
-                            <div class="model-list-header">
-                                可用模型
-                                <span class="close-btn" @click="showModelList = false">&times;</span>
-                            </div>
-                            <div class="model-item" 
-                                 v-for="model in currentProvider.models" 
-                                 :key="model.id"
-                                 @click="selectModel(model)">
-                                [[ model.name ]]
+                        <label class="selector-label">Model</label>
+                        <div class="model-dropdown" ref="modelDropdown">
+                            <button class="model-button" @click="toggleModelList" :class="{'active': showModelList}">
+                                <span>[[ selectedModel ? selectedModel.name : 'Select Model' ]]</span>
+                                <svg class="dropdown-icon" :class="{'rotated': showModelList}" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="6,9 12,15 18,9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="model-dropdown-menu" v-if="showModelList" @click.stop>
+                                <div class="dropdown-header">
+                                    <span>Available Models</span>
+                                    <button class="close-button" @click="showModelList = false">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="dropdown-options">
+                                    <button class="dropdown-option" 
+                                            v-for="model in currentProvider.models" 
+                                            :key="model.id"
+                                            @click="selectModel(model)"
+                                            :class="{'selected': selectedModel && selectedModel.id === model.id}">
+                                        [[ model.name ]]
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </header>
-            <div class="translation-area">
-                <div class="input-area">
-                    <h2>选择文件</h2>
-                    <div class="file-upload-area" 
-                         @dragover.prevent 
-                         @drop.prevent="handleFileDrop"
-                         :class="{'dragging': isDragging}">
-                        <input type="file" 
-                               ref="fileInput" 
-                               @change="handleFileSelect" 
-                               :accept="'.txt,.md,.json,.csv'"
-                               style="display: none">
-                        <div class="upload-content" @click="$refs.fileInput.click()">
-                            <span v-if="selectedFile">
-                                已选择文件: [[ selectedFile.name ]]
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="title-main">Transform Documents</span>
+                        <span class="title-sub">with AI-Powered Translation</span>
+                    </h1>
+                    <p class="hero-description">
+                        Break through document length limitations with advanced LLM technology for seamless translation and formatting correction.
+                    </p>
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">📄</div>
+                            <span>Unlimited Length</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <span>Fast & Accurate</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🤖</div>
+                            <span>AI-Powered</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="floating-card card-1">
+                        <div class="card-content">
+                            <div class="card-icon">🌐</div>
+                            <div class="card-text">Multi-language Support (Future)</div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-2">
+                        <div class="card-content">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-text">Smart Translation by LLM</div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-3">
+                        <div class="card-content">
+                            <div class="card-icon">📊</div>
+                            <div class="card-text">Visible Real-time Progress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-container">
+                
+                <!-- Translation Workspace -->
+                <section class="workspace-section">
+                    <div class="workspace-grid">
+                        
+                        <!-- File Upload Area -->
+                        <div class="workspace-card upload-card">
+                            <div class="card-header">
+                                <h2 class="card-title">
+                                    <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14,2 14,8 20,8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10,9 9,9 8,9"></polyline>
+                                    </svg>
+                                    Upload Document
+                                </h2>
+                                <p class="card-subtitle">Drag and drop your file or click to browse</p>
+                            </div>
+                            
+                            <div class="upload-area" 
+                                 @dragover.prevent="isDragging = true" 
+                                 @dragleave.prevent="isDragging = false"
+                                 @drop.prevent="handleFileDrop"
+                                 :class="{'dragging': isDragging, 'has-file': selectedFile}">
+                                <input type="file" 
+                                       ref="fileInput" 
+                                       @change="handleFileSelect" 
+                                       accept=".txt,.md,.json,.csv"
+                                       class="file-input">
+                                
+                                <div class="upload-content" @click="$refs.fileInput.click()">
+                                    <div class="upload-icon" v-if="!selectedFile">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7,10 12,15 17,10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </div>
+                                    
+                                    <div class="file-info" v-if="selectedFile">
+                                        <div class="file-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14,2 14,8 20,8"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="file-details">
+                                            <div class="file-name">[[ selectedFile.name ]]</div>
+                                            <div class="file-size">[[ formatFileSize(selectedFile.size) ]]</div>
+                                        </div>
+                                        <button class="remove-file" @click.stop="selectedFile = null">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="upload-text" v-if="!selectedFile">
+                                        <p class="upload-primary">Drop your file here</p>
+                                        <p class="upload-secondary">or click to browse</p>
+                                        <p class="upload-formats">Supports: TXT, MD, JSON, CSV</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Area -->
+                        <div class="workspace-card progress-card">
+                            <div class="card-header">
+                                <h2 class="card-title">
+                                    <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12,6 12,12 16,14"></polyline>
+                                    </svg>
+                                    Translation Progress
+                                </h2>
+                                <p class="card-subtitle">Real-time translation status</p>
+                            </div>
+                            
+                            <div class="progress-content">
+                                <div class="progress-display" v-if="isTranslating">
+                                    <div class="progress-status">
+                                        <div class="status-indicator">
+                                            <div class="status-dot"></div>
+                                            <span class="status-text">[[ progressStatus ]]</span>
+                                        </div>
+                                        <div class="progress-percentage">[[ Math.round(progress) ]]%</div>
+                                    </div>
+                                    
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="progress-stats">
+                                        <div class="stat-item">
+                                            <div class="stat-label">Completed Chunks</div>
+                                            <div class="stat-value">[[ translatedChunks ]] / [[ totalChunks ]]</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Estimated Time</div>
+                                            <div class="stat-value">[[ estimatedTimeRemaining ]]</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-placeholder" v-else>
+                                    <div class="placeholder-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polygon points="10,8 16,12 10,16 10,8"></polygon>
+                                        </svg>
+                                    </div>
+                                    <p class="placeholder-text">Ready to start translation</p>
+                                    <p class="placeholder-subtext">Upload a file and select a model to begin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Action Section -->
+                <section class="action-section">
+                    <div class="action-container">
+                        <button class="translate-button" 
+                                @click="translate" 
+                                :disabled="!selectedFile || isTranslating || !selectedModel"
+                                :class="{'loading': isTranslating, 'ready': selectedFile && selectedModel && !isTranslating}">
+                            <span class="button-content">
+                                <div class="loading-spinner" v-if="isTranslating">
+                                    <div class="spinner"></div>
+                                </div>
+                                <span class="button-text">
+                                    [[ isTranslating ? 'Translating...' : 'Start Translation' ]]
+                                </span>
                             </span>
-                            <span v-else>
-                                点击或拖拽文件到此处
-                            </span>
+                        </button>
+                        
+                        <div class="action-info">
+                            <p class="info-text">
+                                No need to wait for it here. Your translated document will be automatically downloaded when ready!
+                            </p>
                         </div>
+                    </div>
+                </section>
+
+                <!-- Error Display -->
+                <div class="error-notification" v-if="error" :class="{'visible': error}">
+                    <div class="error-content">
+                        <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                        <div class="error-message">
+                            <div class="error-title">Translation Error</div>
+                            <div class="error-description">[[ error ]]</div>
+                        </div>
+                        <button class="error-close" @click="error = null">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                     </div>
                 </div>
-                <div class="output-area">
-                    <h2>翻译进度</h2>
-                    <div class="progress-info" v-if="isTranslating">
-                        <div class="progress-status">
-                            <span class="status-text">[[ progressStatus ]]</span>
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" :style="{ width: progress + '%' }"></div>
-                            </div>
-                        </div>
-                        <div class="translation-stats">
-                            <p>已翻译段落: [[ translatedChunks ]] / [[ totalChunks ]]</p>
-                            <p>预计剩余时间: [[ estimatedTimeRemaining ]]</p>
-                        </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <img src="{{ url_for('static', path='/logo.png') }}" alt="Logo" class="footer-logo">
+                        <span class="footer-title">Infinity Translator</span>
                     </div>
-                    <div class="placeholder" v-else>
-                        等待开始翻译...
+                    <div class="footer-text">
+                        No longer need to worry about the output length limit of LLM, freely translate your documents.
                     </div>
                 </div>
             </div>
-            <div class="controls">
-                <button 
-                    @click="translate" 
-                    :disabled="!selectedFile || isTranslating || !selectedModel"
-                    :class="{'loading': isTranslating}"
-                >
-                    [[ isTranslating ? '翻译中...' : '开始翻译' ]]
-                </button>
-            </div>
-            <div class="error-message" v-if="error">
-                [[ error ]]
-            </div>
-        </div>
+        </footer>
     </div>
 
     <script src="{{ url_for('static', path='/app.js') }}"></script>

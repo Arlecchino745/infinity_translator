@@ -8,6 +8,7 @@ const app = createApp({
             selectedProvider: '',
             selectedModel: null,
             showModelList: false,
+            showProviderList: false,
             selectedFile: null,
             isDragging: false,
             isTranslating: false,
@@ -16,12 +17,12 @@ const app = createApp({
             translatedChunks: 0,
             totalChunks: 0,
             startTime: null,
-            progressStatus: '准备中...'
+            progressStatus: 'Preparing...'
         }
     },
     computed: {
         estimatedTimeRemaining() {
-            if (!this.startTime || !this.translatedChunks) return '计算中...';
+            if (!this.startTime || !this.translatedChunks) return 'Calculating...';
             
             const elapsed = (Date.now() - this.startTime) / 1000;
             const avgTimePerChunk = elapsed / this.translatedChunks;
@@ -29,9 +30,9 @@ const app = createApp({
             const estimatedSeconds = avgTimePerChunk * remaining;
             
             if (estimatedSeconds < 60) {
-                return `约 ${Math.ceil(estimatedSeconds)} 秒`;
+                return `About ${Math.ceil(estimatedSeconds)} seconds`;
             } else {
-                return `约 ${Math.ceil(estimatedSeconds / 60)} 分钟`;
+                return `About ${Math.ceil(estimatedSeconds / 60)} minutes`;
             }
         },
         currentProvider() {
@@ -45,27 +46,40 @@ const app = createApp({
                 this.providers = response.data.providers;
                 this.selectedProvider = response.data.active_provider;
             } catch (error) {
-                this.error = '加载服务商信息失败';
+                this.error = 'Failed to load provider information';
+                console.error('Provider loading error:', error);
             }
         },
         async changeProvider(event) {
-            try {
-                await axios.post('/api/set-provider', {
-                    provider: event.target.value
-                });
-                this.selectedModel = null;
-            } catch (error) {
-                this.error = '更改服务商失败';
-            }
+            const providerId = event.target.value;
+            this.selectProvider(providerId);
         },
         toggleModelList() {
             this.showModelList = !this.showModelList;
+        },
+        toggleProviderList() {
+            this.showProviderList = !this.showProviderList;
         },
         selectModel(model) {
             this.selectedModel = model;
             this.showModelList = false;
         },
+        selectProvider(providerId) {
+            this.selectedProvider = providerId;
+            this.showProviderList = false;
+            // Reset model selection when provider changes
+            this.selectedModel = null;
+            
+            // Call API to change provider
+            axios.post('/api/set-provider', {
+                provider: providerId
+            }).catch(error => {
+                this.error = 'Failed to change provider';
+                console.error('Provider change error:', error);
+            });
+        },
         handleFileDrop(event) {
+            event.preventDefault();
             this.isDragging = false;
             const file = event.dataTransfer.files[0];
             if (file) {
@@ -79,48 +93,93 @@ const app = createApp({
             }
         },
         handleFile(file) {
+            // Validate file type
+            const allowedTypes = ['.txt', '.md', '.json', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedTypes.includes(fileExtension)) {
+                this.error = `Unsupported file type. Please select a file with one of these extensions: ${allowedTypes.join(', ')}`;
+                return;
+            }
+            
+            // Validate file size (e.g., max 50MB)
+            const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+            if (file.size > maxSize) {
+                this.error = 'File size too large. Please select a file smaller than 50MB.';
+                return;
+            }
+            
             this.selectedFile = file;
             this.error = null;
         },
+        formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
         async translate() {
-            if (!this.selectedFile) return;
+            if (!this.selectedFile || !this.selectedModel) return;
             
             this.isTranslating = true;
             this.error = null;
+            this.progress = 0;
+            this.translatedChunks = 0;
+            this.totalChunks = 0;
+            this.startTime = Date.now();
+            this.progressStatus = 'Preparing translation...';
 
             const formData = new FormData();
             formData.append('file', this.selectedFile);
-            if (this.selectedModel) {
-                formData.append('model_name', this.selectedModel.id);
-            }
+            formData.append('model_name', this.selectedModel.id);
 
-            this.startTime = Date.now();
-            this.progress = 0;
-            this.translatedChunks = 0;
+            // Setup progress tracking
+            let eventSource = null;
             
-            const eventSource = new EventSource(`/translate-progress`);
-            eventSource.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                this.progress = data.progress;
-                this.translatedChunks = data.translated_chunks;
-                this.totalChunks = data.total_chunks;
-                this.progressStatus = data.status;
-            };
-
             try {
+                // Start progress monitoring
+                eventSource = new EventSource('/translate-progress');
+                eventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        this.progress = data.progress || 0;
+                        this.translatedChunks = data.translated_chunks || 0;
+                        this.totalChunks = data.total_chunks || 0;
+                        this.progressStatus = data.status || 'Processing...';
+                    } catch (parseError) {
+                        console.error('Progress parsing error:', parseError);
+                    }
+                };
+                
+                eventSource.onerror = (error) => {
+                    console.error('EventSource error:', error);
+                };
+
+                // Start translation
                 const response = await axios.post('/translate', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     },
                     responseType: 'blob',
                     onUploadProgress: (progressEvent) => {
-                        this.progressStatus = '上传文件中...';
-                        this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    }
+                        if (progressEvent.total) {
+                            const uploadProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                            this.progressStatus = `Uploading file... ${uploadProgress}%`;
+                            this.progress = Math.min(uploadProgress * 0.1, 10); // Upload is 10% of total progress
+                        }
+                    },
+                    timeout: 300000 // 5 minutes timeout
                 });
 
-                eventSource.close();
-                // 从响应头获取文件名
+                // Close progress monitoring
+                if (eventSource) {
+                    eventSource.close();
+                }
+
+                // Handle successful response
                 const contentDisposition = response.headers['content-disposition'];
                 let filename = 'translated.md';
                 if (contentDisposition) {
@@ -130,35 +189,142 @@ const app = createApp({
                     }
                 }
 
-                // 创建下载链接
+                // Create download link
                 const blob = new Blob([response.data], { type: 'text/markdown' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
                 URL.revokeObjectURL(url);
+
+                // Show success message
+                this.progressStatus = 'Translation completed successfully!';
+                this.progress = 100;
+                
+                // Reset after a delay
+                setTimeout(() => {
+                    this.resetTranslationState();
+                }, 3000);
+
             } catch (error) {
-                let errorMessage = '发生未知错误';
-                if (error.response?.data) {
-                    try {
-                        const blob = error.response.data;
-                        const text = await blob.text();
-                        const errorData = JSON.parse(text);
-                        errorMessage = errorData.message || errorMessage;
-                    } catch (e) {
-                        errorMessage = error.message || errorMessage;
-                    }
+                console.error('Translation error:', error);
+                
+                // Close progress monitoring
+                if (eventSource) {
+                    eventSource.close();
                 }
+                
+                let errorMessage = 'An unexpected error occurred during translation';
+                
+                if (error.response) {
+                    // Server responded with error status
+                    if (error.response.data instanceof Blob) {
+                        try {
+                            const text = await error.response.data.text();
+                            const errorData = JSON.parse(text);
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (parseError) {
+                            errorMessage = `Server error: ${error.response.status}`;
+                        }
+                    } else if (error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    } else {
+                        errorMessage = `Server error: ${error.response.status}`;
+                    }
+                } else if (error.request) {
+                    // Network error
+                    errorMessage = 'Network error. Please check your connection and try again.';
+                } else if (error.code === 'ECONNABORTED') {
+                    // Timeout error
+                    errorMessage = 'Translation timeout. The file might be too large or the server is busy.';
+                }
+                
                 this.error = errorMessage;
-            } finally {
-                this.isTranslating = false;
+                this.resetTranslationState();
             }
+        },
+        resetTranslationState() {
+            this.isTranslating = false;
+            this.progress = 0;
+            this.translatedChunks = 0;
+            this.totalChunks = 0;
+            this.startTime = null;
+            this.progressStatus = 'Ready to start translation';
+        },
+        // Handle drag events
+        handleDragOver(event) {
+            event.preventDefault();
+            this.isDragging = true;
+        },
+        handleDragLeave(event) {
+            event.preventDefault();
+            // Only set isDragging to false if we're leaving the drop zone entirely
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+                this.isDragging = false;
+            }
+        },
+        // Close dropdown when clicking outside
+        handleClickOutside(event) {
+            const isClickingOutsideProvider = this.showProviderList && 
+                !this.$refs.providerDropdown?.contains(event.target);
+            const isClickingOutsideModel = this.showModelList && 
+                !this.$refs.modelDropdown?.contains(event.target);
+                
+            if (isClickingOutsideProvider) {
+                this.showProviderList = false;
+            }
+            
+            if (isClickingOutsideModel) {
+                this.showModelList = false;
+            }
+        },
+        // Keyboard navigation for accessibility
+        handleKeydown(event) {
+            if (event.key === 'Escape') {
+                this.showModelList = false;
+                this.error = null;
+            }
+        },
+        // Add method for auto scrolling to 60% of the page
+        autoScrollToPosition() {
+            // Wait for the page to fully render
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    const scrollPosition = document.body.scrollHeight * 0.34;
+                    window.scrollTo({
+                        top: scrollPosition,
+                        behavior: 'smooth'
+                    });
+                }, 500); // Small delay to ensure everything is rendered
+            });
         }
     },
     mounted() {
         this.loadProviders();
+        
+        // Add global event listeners
+        document.addEventListener('click', this.handleClickOutside);
+        document.addEventListener('keydown', this.handleKeydown);
+        
+        // Prevent default drag behaviors on the entire document
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+        
+        // Auto scroll to 60% of the page
+        this.autoScrollToPosition();
+    },
+    beforeUnmount() {
+        // Clean up event listeners
+        document.removeEventListener('click', this.handleClickOutside);
+        document.removeEventListener('keydown', this.handleKeydown);
+        document.removeEventListener('dragover', (e) => e.preventDefault());
+        document.removeEventListener('drop', (e) => e.preventDefault());
     }
 })
 
 app.mount('#app')
+
