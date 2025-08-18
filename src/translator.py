@@ -1,16 +1,16 @@
-# translator.py
-
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
-from tqdm import tqdm
 import logging
 import re
+import asyncio
 
 # 导入配置管理
 from config.settings import get_provider_settings
 from config.config import SILICONFLOW_API_KEY, OPENROUTER_API_KEY
+from .output import create_translation_response
+from .progress import TranslationProgress
 
 # 设置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -40,10 +40,11 @@ class DocumentTranslator:
             ]
         )
         
+        # 使用字符数而不是token数来分割文本
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2000,  # 减小chunk大小以提高翻译质量
+            chunk_size=2000,  # 按字符数分割
             chunk_overlap=200,
-            length_function=self.llm.get_num_tokens_from_messages,
+            length_function=len,  # 使用字符长度而不是token数
             separators=["\n## ", "\n### ", "\n\n", "\n", " ", ""]
         )
 
@@ -90,14 +91,19 @@ class DocumentTranslator:
             logger.error(f"翻译chunk时发生错误: {str(e)}")
             return f"[翻译错误] {str(e)}"
 
-    def translate_document(self, text: str) -> str:
+    async def translate_document(self, text: str, original_filename: str) -> Tuple[bytes, str]:
         """
         使用配置好的 LLM 服务翻译长文档。
         采用顺序处理并保持上下文连贯性。
+        
+        Returns:
+            Tuple[bytes, str]: (翻译内容的字节流, 输出文件名)
         """
         logger.info(f"正在使用服务: {self.active_provider}, 模型: {self.provider_settings['model_name']}")
         
         try:
+            provider_name = self.provider_settings.get('name', self.active_provider)
+            model_name = self.provider_settings.get('model_name', 'unknown')
             # 1. 先按markdown标题分割
             markdown_docs = self.markdown_splitter.split_text(text)
             
@@ -112,12 +118,23 @@ class DocumentTranslator:
             # 3. 顺序翻译每个块，并保持上下文连贯
             translated_chunks = []
             previous_translation = None
+            progress_tracker = await TranslationProgress.get_instance()
+            total_chunks = len(all_chunks)
             
-            for chunk in tqdm(all_chunks, desc="翻译进度"):
+            for i, chunk in enumerate(all_chunks):
                 translated_text = self.translate_chunk(chunk, previous_translation)
                 translated_chunks.append(translated_text)
                 # 更新上下文，只保留上一个块的翻译
                 previous_translation = translated_text
+                
+                # 更新进度
+                progress = int((i + 1) * 100 / total_chunks)
+                await progress_tracker.update(
+                    progress=progress,
+                    translated_chunks=i + 1,
+                    total_chunks=total_chunks,
+                    status=f"正在翻译第 {i + 1}/{total_chunks} 段..."
+                )
             
             # 4. 合并翻译结果
             final_translation = "\n\n".join(translated_chunks)
@@ -125,15 +142,14 @@ class DocumentTranslator:
             # 5. 清理可能的重复内容
             final_translation = re.sub(r'\n{3,}', '\n\n', final_translation)
             
-            return final_translation
+            # 使用output模块处理翻译结果
+            return create_translation_response(
+                translated_text=final_translation,
+                original_filename=original_filename,
+                provider_name=provider_name,
+                model_name=model_name
+            )
             
         except Exception as e:
             logger.error(f"翻译文档时发生错误: {str(e)}")
             raise
-
-def translate_document(text: str) -> str:
-    """
-    入口函数，保持与原接口兼容
-    """
-    translator = DocumentTranslator()
-    return translator.translate_document(text)

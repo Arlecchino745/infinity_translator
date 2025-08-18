@@ -10,6 +10,10 @@
 </head>
 <body>
     <div id="app">
+        <div class="welcome-message">
+            <h1 class="greeting">Ciallo～(∠・ω< )⌒★</h1>
+            <p class="sub-greeting">无视文档长度，利用LLM进行翻译与排版修正</p>
+        </div>
         <div class="container">
             <header class="header">
                 <div class="logo">
@@ -66,12 +70,21 @@
                     </div>
                 </div>
                 <div class="output-area">
-                    <h2>翻译结果</h2>
-                    <div class="translation-result" v-if="translatedText">
-                        <div v-html="formattedTranslation"></div>
+                    <h2>翻译进度</h2>
+                    <div class="progress-info" v-if="isTranslating">
+                        <div class="progress-status">
+                            <span class="status-text">[[ progressStatus ]]</span>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" :style="{ width: progress + '%' }"></div>
+                            </div>
+                        </div>
+                        <div class="translation-stats">
+                            <p>已翻译段落: [[ translatedChunks ]] / [[ totalChunks ]]</p>
+                            <p>预计剩余时间: [[ estimatedTimeRemaining ]]</p>
+                        </div>
                     </div>
                     <div class="placeholder" v-else>
-                        翻译结果将在这里显示...
+                        等待开始翻译...
                     </div>
                 </div>
             </div>
