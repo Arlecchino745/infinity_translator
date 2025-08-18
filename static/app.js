@@ -45,6 +45,14 @@ const app = createApp({
                 const response = await axios.get('/api/providers');
                 this.providers = response.data.providers;
                 this.selectedProvider = response.data.active_provider;
+                
+                // 设置默认的Model为当前Provider的第一个Model
+                if (this.selectedProvider && this.providers[this.selectedProvider]) {
+                    const provider = this.providers[this.selectedProvider];
+                    if (provider.models && provider.models.length > 0) {
+                        this.selectedModel = provider.models[0];
+                    }
+                }
             } catch (error) {
                 this.error = 'Failed to load provider information';
                 console.error('Provider loading error:', error);
