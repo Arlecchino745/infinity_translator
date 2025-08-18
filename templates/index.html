@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Translator</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <header class="header">
+                <div class="logo">
+                    <img src="{{ url_for('static', path='/logo.png') }}" alt="Logo">
+                    <h1>Infinity Translator</h1>
+                </div>
+                <div class="provider-selector">
+                    <div class="provider-dropdown">
+                        <select v-model="selectedProvider" @change="changeProvider">
+                            <option v-for="(provider, id) in providers" :key="id" :value="id">
+                                [[ provider.name ]]
+                            </option>
+                        </select>
+                    </div>
+                    <div class="model-selector" v-if="currentProvider">
+                        <div class="selected-model" @click="toggleModelList">
+                            [[ selectedModel ? selectedModel.name : '选择模型' ]]
+                        </div>
+                        <div class="model-list" v-if="showModelList">
+                            <div class="model-list-header">
+                                可用模型
+                                <span class="close-btn" @click="showModelList = false">&times;</span>
+                            </div>
+                            <div class="model-item" 
+                                 v-for="model in currentProvider.models" 
+                                 :key="model.id"
+                                 @click="selectModel(model)">
+                                [[ model.name ]]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="translation-area">
+                <div class="input-area">
+                    <h2>选择文件</h2>
+                    <div class="file-upload-area" 
+                         @dragover.prevent 
+                         @drop.prevent="handleFileDrop"
+                         :class="{'dragging': isDragging}">
+                        <input type="file" 
+                               ref="fileInput" 
+                               @change="handleFileSelect" 
+                               :accept="'.txt,.md,.json,.csv'"
+                               style="display: none">
+                        <div class="upload-content" @click="$refs.fileInput.click()">
+                            <span v-if="selectedFile">
+                                已选择文件: [[ selectedFile.name ]]
+                            </span>
+                            <span v-else>
+                                点击或拖拽文件到此处
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="output-area">
+                    <h2>翻译结果</h2>
+                    <div class="translation-result" v-if="translatedText">
+                        <div v-html="formattedTranslation"></div>
+                    </div>
+                    <div class="placeholder" v-else>
+                        翻译结果将在这里显示...
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button 
+                    @click="translate" 
+                    :disabled="!selectedFile || isTranslating || !selectedModel"
+                    :class="{'loading': isTranslating}"
+                >
+                    [[ isTranslating ? '翻译中...' : '开始翻译' ]]
+                </button>
+            </div>
+            <div class="error-message" v-if="error">
+                [[ error ]]
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+langchain-openai
+langchain-community
+python-dotenv
+tiktoken
+tqdm
+fastapi
+uvicorn
+jinja2
+python-multipart
