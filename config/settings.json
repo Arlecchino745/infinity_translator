@@ -1,0 +1,114 @@
+{
+  "active_provider": "openrouter",
+  "providers": {
+    "openrouter": {
+      "base_url": "https://openrouter.ai/api/v1",
+      "name": "OpenRouter (https://openrouter.ai)",
+      "models": [
+        {
+          "id": "google/gemini-2.0-flash-001",
+          "name": "Google/Gemini-2.0-flash"
+        },
+        {
+          "id": "google/gemini-flash-1.5-8b",
+          "name": "Google/Gemini-1.5-flash"
+        }
+      ],
+      "model_name": "google/gemini-2.0-flash-001"
+    },
+    "siliconflow": {
+      "base_url": "https://api.siliconflow.cn/v1",
+      "name": "SiliconFlow (https://siliconflow.cn)",
+      "models": [
+        {
+          "id": "deepseek-ai/DeepSeek-V3",
+          "name": "deepseek-ai/DeepSeek-V3"
+        },
+        {
+          "id": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+          "name": "Qwen/Qwen3-235B-A22B"
+        },
+        {
+          "id": "zai-org/GLM-4.5",
+          "name": "zai-org/GLM-4.5"
+        }
+      ],
+      "model_name": "zai-org/GLM-4.5"
+    }
+  },
+  "target_language": "fr",
+  "language_list": [
+    {
+      "name": "简体中文",
+      "code": "zh-Hans"
+    },
+    {
+      "name": "English",
+      "code": "en"
+    },
+    {
+      "name": "日本語",
+      "code": "ja"
+    },
+    {
+      "name": "한국어",
+      "code": "ko"
+    },
+    {
+      "name": "Français",
+      "code": "fr"
+    },
+    {
+      "name": "Deutsch",
+      "code": "de"
+    },
+    {
+      "name": "Español",
+      "code": "es"
+    },
+    {
+      "name": "Português",
+      "code": "pt"
+    },
+    {
+      "name": "Русский",
+      "code": "ru"
+    },
+    {
+      "name": "العربية",
+      "code": "ar"
+    },
+    {
+      "name": "हिन्दी",
+      "code": "hi"
+    },
+    {
+      "name": "Italiano",
+      "code": "it"
+    },
+    {
+      "name": "Türkçe",
+      "code": "tr"
+    },
+    {
+      "name": "Tiếng Việt",
+      "code": "vi"
+    },
+    {
+      "name": "ไทย",
+      "code": "th"
+    },
+    {
+      "name": "Bahasa Indonesia",
+      "code": "id"
+    },
+    {
+      "name": "繁體中文",
+      "code": "zh-Hant"
+    },
+    {
+      "name": "الفارسی",
+      "code": "fa"
+    }
+  ]
+}

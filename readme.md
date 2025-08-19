@@ -1,0 +1,2 @@
+Infinite Translator
+基于langchain的长文本翻译工具，具有简洁美观的网页GUI界面。

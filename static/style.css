@@ -106,7 +106,7 @@ body {
     align-items: center;
 }
 
-.provider-selector, .model-selector {
+.provider-selector, .model-selector, .language-selector {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -183,7 +183,9 @@ body {
     transform: rotate(180deg);
 }
 
-.model-dropdown-menu {
+/* 模型和语言选择器下拉菜单共用样式 */
+.model-dropdown-menu,
+.language-dropdown-menu {
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;

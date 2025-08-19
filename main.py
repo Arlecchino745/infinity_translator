@@ -21,11 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 读取设置文件
+# Import settings functions
+from config.settings import load_settings, save_settings
+
+# Alias for compatibility
 def get_settings():
-    settings_path = Path(__file__).parent / "config" / "settings.json"
-    with open(settings_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    return load_settings()
 
 # 挂载静态文件目录
 static_path = Path(__file__).parent / "static"
@@ -57,6 +58,14 @@ async def get_providers():
         "providers": settings["providers"]
     })
 
+@app.get("/api/languages")
+async def get_languages():
+    settings = get_settings()
+    return JSONResponse(content={
+        "target_language": settings["target_language"],
+        "language_list": settings["language_list"]
+    })
+
 @app.post("/api/set-provider")
 async def set_provider(request: Request):
     data = await request.json()
@@ -69,9 +78,25 @@ async def set_provider(request: Request):
         return JSONResponse(status_code=400, content={"message": "Invalid provider"})
     
     settings["active_provider"] = provider
-    settings_path = Path(__file__).parent / "config" / "settings.json"
-    with open(settings_path, 'w', encoding='utf-8') as f:
-        json.dump(settings, f, ensure_ascii=False, indent=2)
+    save_settings(settings)
+    
+    return JSONResponse(content={"status": "success"})
+
+@app.post("/api/set-language")
+async def set_language(request: Request):
+    data = await request.json()
+    language = data.get("language")
+    if not language:
+        return JSONResponse(status_code=400, content={"message": "Language is required"})
+    
+    settings = get_settings()
+    # 验证语言是否在语言列表中
+    language_codes = [lang["code"] for lang in settings["language_list"]]
+    if language not in language_codes:
+        return JSONResponse(status_code=400, content={"message": "Invalid language"})
+    
+    settings["target_language"] = language
+    save_settings(settings)
     
     return JSONResponse(content={"status": "success"})
 
@@ -111,23 +136,25 @@ async def translate(file: UploadFile = File(...), model_name: str = Form(...)):
         provider_info["model_name"] = model_name
         
         # 保存更新后的设置
-        settings_path = Path(__file__).parent / "config" / "settings.json"
-        with open(settings_path, 'w', encoding='utf-8') as f:
-            json.dump(settings, f, ensure_ascii=False, indent=2)
+        save_settings(settings)
         
         # 获取翻译器实例并执行翻译
         translator = DocumentTranslator()
         content_bytes, output_filename = await translator.translate_document(text, file.filename)
         
-        return Response(
-            content=content_bytes,
-            media_type="text/markdown",
-            headers={
-                "Content-Disposition": f'attachment; filename="{output_filename}"'
-            }
-        )
+        # 返回翻译后的文件
+        headers = {
+            'Content-Disposition': f'attachment; filename="{output_filename}"'
+        }
+        return Response(content_bytes, headers=headers, media_type='text/markdown')
+        
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        print(f"Translation error: {str(e)}")
+        return JSONResponse(status_code=500, content={"message": f"Translation failed: {str(e)}"})
+
+def start_web_server():
+    """Start the web server (for standalone web mode)"""
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    start_web_server()

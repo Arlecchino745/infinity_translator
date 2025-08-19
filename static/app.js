@@ -9,6 +9,7 @@ const app = createApp({
             selectedModel: null,
             showModelList: false,
             showProviderList: false,
+            showLanguageList: false,
             selectedFile: null,
             isDragging: false,
             isTranslating: false,
@@ -17,7 +18,9 @@ const app = createApp({
             translatedChunks: 0,
             totalChunks: 0,
             startTime: null,
-            progressStatus: 'Preparing...'
+            progressStatus: 'Preparing...',
+            languageList: [],
+            selectedLanguage: null
         }
     },
     computed: {
@@ -58,6 +61,16 @@ const app = createApp({
                 console.error('Provider loading error:', error);
             }
         },
+        async loadLanguages() {
+            try {
+                const response = await axios.get('/api/languages');
+                this.languageList = response.data.language_list;
+                this.selectedLanguage = this.languageList.find(lang => lang.code === response.data.target_language) || this.languageList[0];
+            } catch (error) {
+                this.error = 'Failed to load language information';
+                console.error('Language loading error:', error);
+            }
+        },
         async changeProvider(event) {
             const providerId = event.target.value;
             this.selectProvider(providerId);
@@ -67,6 +80,9 @@ const app = createApp({
         },
         toggleProviderList() {
             this.showProviderList = !this.showProviderList;
+        },
+        toggleLanguageList() {
+            this.showLanguageList = !this.showLanguageList;
         },
         selectModel(model) {
             this.selectedModel = model;
@@ -84,6 +100,18 @@ const app = createApp({
             }).catch(error => {
                 this.error = 'Failed to change provider';
                 console.error('Provider change error:', error);
+            });
+        },
+        selectLanguage(language) {
+            this.selectedLanguage = language;
+            this.showLanguageList = false;
+            
+            // Call API to change target language
+            axios.post('/api/set-language', {
+                language: language.code
+            }).catch(error => {
+                this.error = 'Failed to change target language';
+                console.error('Language change error:', error);
             });
         },
         handleFileDrop(event) {
@@ -281,6 +309,8 @@ const app = createApp({
                 !this.$refs.providerDropdown?.contains(event.target);
             const isClickingOutsideModel = this.showModelList && 
                 !this.$refs.modelDropdown?.contains(event.target);
+            const isClickingOutsideLanguage = this.showLanguageList &&
+                !this.$refs.languageDropdown?.contains(event.target);
                 
             if (isClickingOutsideProvider) {
                 this.showProviderList = false;
@@ -289,11 +319,17 @@ const app = createApp({
             if (isClickingOutsideModel) {
                 this.showModelList = false;
             }
+
+            if (isClickingOutsideLanguage) {
+                this.showLanguageList = false;
+            }
         },
         // Keyboard navigation for accessibility
         handleKeydown(event) {
             if (event.key === 'Escape') {
                 this.showModelList = false;
+                this.showProviderList = false;
+                this.showLanguageList = false;
                 this.error = null;
             }
         },
@@ -313,6 +349,7 @@ const app = createApp({
     },
     mounted() {
         this.loadProviders();
+        this.loadLanguages();
         
         // Add global event listeners
         document.addEventListener('click', this.handleClickOutside);

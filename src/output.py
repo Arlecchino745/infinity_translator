@@ -19,7 +19,7 @@ class TranslationOutputFormatter:
             tuple: (格式化后的文本, 输出文件名)
         """
         # 添加翻译信息头
-        header = f"由 {self.provider_name} | {self.model_name} 翻译\n\n"
+        header = f"Translate by {self.provider_name}|{self.model_name}\n\n"
         formatted_text = header + translated_text
 
         # 生成输出文件名

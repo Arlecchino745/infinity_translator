@@ -7,3 +7,7 @@ fastapi
 uvicorn
 jinja2
 python-multipart
+psutil
+PySide6
+# PySide6-WebEngine 不再作为一个独立的包存在，它已经集成在PySide6中
+pyinstaller
