@@ -3,6 +3,10 @@
 基于langchain的长文本翻译工具，具有简洁美观的网页GUI界面。
 网页LOGO来自[https://icon-sets.iconify.design/](https://icon-sets.iconify.design/)。
 
+![image](https://github.com/Arlecchino745/infinity_translator/img/screenshot2.png)
+
+![image](https://github.com/Arlecchino745/infinity_translator/img/screenshot.png)
+
 ## 使用方法
 若需使用，请:
 1. 克隆仓库(git clone)，并安装依赖。这需要您的计算机上安装了Python。个人建议不要使用最新或太老的python版本。在克隆仓库后，依次运行(Windows系统的示例，其他系统类似)：

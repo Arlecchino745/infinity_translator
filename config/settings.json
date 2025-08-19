@@ -1,5 +1,5 @@
 {
-  "active_provider": "openrouter",
+  "active_provider": "siliconflow",
   "providers": {
     "openrouter": {
       "base_url": "https://openrouter.ai/api/v1",
@@ -36,7 +36,7 @@
       "model_name": "zai-org/GLM-4.5"
     }
   },
-  "target_language": "fr",
+  "target_language": "zh-Hans",
   "language_list": [
     {
       "name": "简体中文",
