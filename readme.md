@@ -3,9 +3,9 @@
 基于langchain的长文本翻译工具，具有简洁美观的网页GUI界面。
 网页LOGO来自[https://icon-sets.iconify.design/](https://icon-sets.iconify.design/)。
 
-![image](https://github.com/Arlecchino745/infinity_translator/img/screenshot2.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot2.png)
 
-![image](https://github.com/Arlecchino745/infinity_translator/img/screenshot.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot.png)
 
 ## 使用方法
 若需使用，请:
