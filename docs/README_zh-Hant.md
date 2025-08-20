@@ -1,8 +1,8 @@
 # Infinity Translator
 
 Infinity Translator 是一款利用大型語言模型進行長文本翻譯的軟體，具有現代且美觀的 UI 介面。它可以適當地分塊和預處理大型文檔，並將它們翻譯成多種語言。
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot2.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot.png)
 
 ## 功能
 

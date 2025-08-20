@@ -1,8 +1,8 @@
 # Infinity Translator
 
 Infinity Translator est un logiciel qui utilise de grands modèles linguistiques pour la traduction de textes longs, avec une interface utilisateur moderne et esthétique. Il peut segmenter et prétraiter de manière appropriée de grands documents et les traduire en plusieurs langues.
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot2.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot.png)
 
 ## Fonctionnalités
 
