@@ -1,6 +1,6 @@
 # Infinity Translator
 
-🌐 [简体中文](/docs/README_zh-Hans.md) | [繁體中文](/docs/README_zh-Hant.md) | [日本語](/docs/README_ja.md) | [Français](/docs/README_fr.md) | [한국어](/docs/README_kr.md) | [Русский](/docs/README_ru.md)
+<div align="center">🌐 <a href="/docs/README_zh-Hans.md">简体中文</a> | <a href="/docs/README_zh-Hant.md">繁體中文</a> | <a href="/docs/README_ja.md">日本語</a> | <a href="/docs/README_fr.md">Français</a> | <a href="/docs/README_kr.md">한국어</a> | <a href="/docs/README_ru.md">Русский</a></div>
 
 Infinity Translator is a software that utilizes large language models for long text translation, with a modern and beautiful UI interface. It can appropriately chunk and preprocess large documents and translate them into multiple languages.
 
