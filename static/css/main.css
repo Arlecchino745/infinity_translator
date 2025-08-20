@@ -1,0 +1,11 @@
+/* Main CSS file that imports all modular CSS files */
+
+@import url('./variables.css');
+@import url('./base.css');
+@import url('./navigation.css');
+@import url('./hero.css');
+@import url('./workspace.css');
+@import url('./components.css');
+@import url('./footer.css');
+@import url('./responsive.css');
+@import url('./utilities.css');

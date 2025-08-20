@@ -49,7 +49,7 @@ const app = createApp({
                 this.providers = response.data.providers;
                 this.selectedProvider = response.data.active_provider;
                 
-                // 设置默认的Model为当前Provider的第一个Model
+                // Set the default Model to the first Model of the current Provider
                 if (this.selectedProvider && this.providers[this.selectedProvider]) {
                     const provider = this.providers[this.selectedProvider];
                     if (provider.models && provider.models.length > 0) {

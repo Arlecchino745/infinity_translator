@@ -215,6 +215,21 @@ Additional formatting instructions:
             logger.error(f"Error occurred while translating chunk: {str(e)}")
             return f"[Translation Error] {str(e)}"
 
+    def translate_header(self, header_text: str) -> str:
+        """
+        翻译标题文本
+        """
+        try:
+            # 为标题创建一个简化的提示
+            prompt = self.create_translation_prompt(header_text)
+            prompt_template = PromptTemplate(template=prompt, input_variables=["text"])
+            result = prompt_template.format(text=header_text)
+            response = self.llm.predict(result)
+            return response.strip()
+        except Exception as e:
+            logger.error(f"Error occurred while translating header: {str(e)}")
+            return header_text  # 如果翻译失败，返回原始标题
+
     async def translate_document(self, text: str, original_filename: str) -> Tuple[bytes, str]:
 
         logger.info(f"AI Provider: {self.active_provider}, Model: {self.provider_settings['model_name']}")
@@ -256,7 +271,9 @@ Additional formatting instructions:
                     for header_level in ["header1", "header2", "header3", "header4", "header5", "header6"]:
                         if header_level in doc.metadata:
                             header_symbol = "#" * int(header_level[-1])
-                            header_context += f"{header_symbol} {doc.metadata[header_level]}\n\n"
+                            # 翻译标题文本
+                            translated_header = self.translate_header(doc.metadata[header_level])
+                            header_context += f"{header_symbol} {translated_header}\n\n"
                     
                     section_translation = header_context + section_translation
                 

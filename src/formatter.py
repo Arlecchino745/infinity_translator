@@ -67,8 +67,8 @@ class DocumentFormatter:
             # 移除加粗格式 **text**
             header_content = re.sub(r'\*\*(.*?)\*\*', r'\1', header_content)
             # 移除斜体格式 *text* 或 _text_
-            header_content = re.sub(r'(?<!\*)\*(?!\*)(.*?) (?<!\*)\*(?!\*)', r'\1', header_content)
-            header_content = re.sub(r'(?<!_)_(?!_)(.*?) (?<!_)_(?!_)', r'\1', header_content)
+            header_content = re.sub(r'\*(.*?)\*', r'\1', header_content)
+            header_content = re.sub(r'_(.*?)_', r'\1', header_content)
             # 移除行内代码格式 `code`
             header_content = re.sub(r'`(.*?)`', r'\1', header_content)
             

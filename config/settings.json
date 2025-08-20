@@ -45,10 +45,8 @@
       "model_name": "zai-org/GLM-4.5"
     }
   },
-
   // 不要在本文件或settings.user.json中修改下面的内容，在这里新增语言是无效的。这里仅可管理已有语言列表。
   // Do not modify the content below in this file or settings.user.json. Adding new languages here is invalid. This is only for managing the existing language list.
-
   "target_language": "zh-Hans",
   "language_list": [
     {

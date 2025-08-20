@@ -1,0 +1,333 @@
+/* Workspace Section */
+.workspace-section {
+    margin-bottom: 3rem;
+    margin-top: 1rem;
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.workspace-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transition: all var(--transition-medium);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.workspace-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.card-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--background-medium);
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.title-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--primary-blue);
+}
+
+.card-subtitle {
+    color: var(--text-medium);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Upload Area */
+.upload-area {
+    margin: 1.5rem;
+    height: 250px;
+    border: 2px dashed var(--background-medium);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(66, 153, 225, 0.05) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform var(--transition-slow);
+}
+
+.upload-area:hover::before {
+    transform: translateX(100%);
+}
+
+.upload-area.dragging {
+    border-color: var(--primary-blue);
+    background: rgba(66, 153, 225, 0.05);
+    transform: scale(1.02);
+}
+
+.upload-area.has-file {
+    border-color: var(--success-green);
+    background: rgba(56, 161, 105, 0.05);
+}
+
+.file-input {
+    display: none;
+}
+
+.upload-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--text-light);
+    transition: all var(--transition-medium);
+}
+
+.upload-area:hover .upload-icon {
+    color: var(--primary-blue);
+    transform: scale(1.1);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--success-green);
+}
+
+.file-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--success-green);
+}
+
+.file-details {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.file-size {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+}
+
+.remove-file {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.remove-file:hover {
+    color: var(--error-red);
+    background: rgba(229, 62, 62, 0.1);
+}
+
+.remove-file svg {
+    width: 16px;
+    height: 16px;
+}
+
+.upload-text {
+    text-align: center;
+}
+
+.upload-primary {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.upload-secondary {
+    color: var(--text-medium);
+    margin-bottom: 1rem;
+}
+
+.upload-formats {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    background: var(--background-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    display: inline-block;
+}
+
+/* Progress Area */
+.progress-content {
+    padding: 1.5rem;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-display {
+    width: 100%;
+}
+
+.progress-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--primary-blue);
+    border-radius: var(--radius-full);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.status-text {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.progress-percentage {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.progress-bar-container {
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--background-medium);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-blue), var(--primary-light));
+    border-radius: var(--radius-sm);
+    transition: width var(--transition-medium);
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--background-light);
+    border-radius: var(--radius-md);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.progress-placeholder {
+    text-align: center;
+    color: var(--text-light);
+}
+
+.placeholder-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    opacity: 0.5;
+}
+
+.placeholder-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.placeholder-subtext {
+    font-size: 0.875rem;
+}

@@ -67,6 +67,23 @@ async def update_settings(new_settings: dict):
     save_settings(settings)
     return {"message": "Settings updated successfully"}
 
+@app.post("/api/set-language")
+async def set_language(request: Request):
+    data = await request.json()
+    language = data.get("language")
+    if not language:
+        return JSONResponse(status_code=400, content={"message": "Language is required"})
+    
+    # 验证语言是否在语言列表中
+    language_codes = [lang["code"] for lang in settings["language_list"]]
+    if language not in language_codes:
+        return JSONResponse(status_code=400, content={"message": "Invalid language"})
+    
+    settings["target_language"] = language
+    save_settings(settings)
+    
+    return JSONResponse(content={"status": "success"})
+
 # 导入 TranslationProgress
 from src.progress import TranslationProgress
 

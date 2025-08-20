@@ -1,0 +1,183 @@
+/* Hero Section */
+.hero-section {
+    padding: 7rem 2rem 3rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-size: 100% 100%;
+    animation: gradientFlow 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 3rem;
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-content {
+    color: var(--white);
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.title-main {
+    background: linear-gradient(45deg, #ffffff, #f0f8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+.title-sub {
+    font-size: 2rem;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+@keyframes titleGlow {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.2); }
+}
+
+.hero-description {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.hero-features {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    transition: transform var(--transition-medium);
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 2rem;
+}
+
+.hero-visual {
+    position: relative;
+    height: 350px;
+}
+
+.floating-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-xl);
+    padding: 0.5rem 1rem; /* 减小上下内边距 */
+    color: var(--white);
+    animation: float 6s ease-in-out infinite;
+    z-index: 2;
+    font-size: 1.2rem;
+    width: fit-content; /* 根据内容自动调整宽度 */
+    min-width: 200px; /* 设置最小宽度 */
+    max-width: 400px; /* 设置最大宽度，防止过宽 */
+    white-space: nowrap; /* 保持文字在一行 */
+}
+
+.card-1 {
+    top: 10%;
+    left: 0%;
+    animation-delay: 0s;
+}
+
+.card-2 {
+    top: 28%;
+    left: 14%;
+    animation-delay: 2s;
+}
+
+.card-3 {
+    top: 46%;
+    left: 7%;
+    animation-delay: 4s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.hero-annotation {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    font-style: normal;
+    max-width: 70%;
+    text-align: right;
+}
+
+.card-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.card-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.card-text {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

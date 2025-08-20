@@ -1,0 +1,43 @@
+/* Footer */
+.footer {
+    background: var(--primary-dark);
+    color: var(--white);
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.footer-logo {
+    height: 24px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.footer-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.footer-text {
+    opacity: 0.8;
+    font-size: 0.875rem;
+}
