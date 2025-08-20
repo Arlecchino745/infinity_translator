@@ -1,7 +1,8 @@
-import flet as ft
 import os
 import sys
 import zipfile
+import subprocess
+import shutil
 from pathlib import Path
 
 def build_desktop_app():
@@ -13,10 +14,9 @@ def build_desktop_app():
         print("Building Infinity Translator desktop app...")
         
         # 使用flet pack命令打包应用
-        import subprocess
         result = subprocess.run([
-            sys.executable, "-m", "flet", "pack", 
-            "app/desktop_app.py",  # 更新为desktop_app.py
+            "flet", "pack", 
+            "app/desktop_app.py",
             "--name", "InfinityTranslator",
             "--product-name", "Infinity Translator",
             "--product-version", "1.0.0",
@@ -30,6 +30,7 @@ def build_desktop_app():
             
             # 创建完整包
             create_full_package()
+            return True
         else:
             print("❌ Build failed!")
             print("Error output:", result.stderr)
@@ -38,8 +39,6 @@ def build_desktop_app():
     except Exception as e:
         print(f"❌ Build error: {e}")
         return False
-    
-    return True
 
 def create_full_package():
     """Create a full package with all necessary files"""
@@ -50,7 +49,6 @@ def create_full_package():
         # 复制主程序
         main_exe = Path("dist/InfinityTranslator.exe")
         if main_exe.exists():
-            import shutil
             shutil.copy2(main_exe, package_dir)
         
         # 需要包含的目录和文件
@@ -60,8 +58,9 @@ def create_full_package():
             "templates",
             "src",
             "requirements.txt",
-            "web_app.py",  # 更新为web_app.py
-            "README.md"
+            "web_app.py",
+            "README.md",
+            ".env.example"
         ]
         
         for asset in assets:
@@ -69,7 +68,6 @@ def create_full_package():
             if asset_path.exists():
                 if asset_path.is_dir():
                     # 复制目录
-                    import shutil
                     dest_path = package_dir / asset_path.name
                     if dest_path.exists():
                         shutil.rmtree(dest_path)
@@ -77,8 +75,21 @@ def create_full_package():
                                   ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '.git', '.venv'))
                 else:
                     # 复制文件
-                    import shutil
                     shutil.copy2(asset_path, package_dir)
+        
+        # 特别处理config目录下的特定文件
+        config_dir = package_dir / "config"
+        config_dir.mkdir(exist_ok=True)
+        
+        # 确保config目录包含settings.json和settings.json.example
+        config_files = ["config/settings.json", "config/settings.json.example"]
+        for config_file in config_files:
+            src_path = Path(config_file)
+            if src_path.exists():
+                dest_path = package_dir / config_file
+                shutil.copy2(src_path, dest_path)
+            else:
+                print(f"⚠️  Warning: {config_file} not found")
         
         # 创建ZIP包
         zip_path = Path("dist/InfinityTranslator_Package.zip")
