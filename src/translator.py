@@ -9,6 +9,7 @@ from config.settings import get_provider_settings
 from config.config import SILICONFLOW_API_KEY, OPENROUTER_API_KEY
 from .output import create_translation_response
 from .progress import TranslationProgress
+from .formatter import DocumentFormatter
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -32,34 +33,104 @@ class DocumentTranslator:
                 ("#", "header1"),
                 ("##", "header2"),
                 ("###", "header3"),
+                ("####", "header4"),
+                ("#####", "header5"),
+                ("######", "header6"),
             ]
         )
         
         self.separators = [
-            "# ",
-            "## ",
-            "### ",
-            "\n\n",
-            "。",
-            "！",
-            "？",
-            ". ",
-            "! ",
-            "? ",
-            "；",
-            "; ",
+            "\n\n",  # 段落分隔
+            "\n",    # 行分隔
+            ". ",    # 句号
+            "! ",    # 感叹号
+            "? ",    # 问号
+            "。",    # 中文句号
+            "！",    # 中文感叹号
+            "？",    # 中文问号
+            "；",    # 中文分号
+            "; ",    # 英文分号
         ]
         
-        self.last_resort_punctuation = set([
-            '。', '！', '？', '；', '.', '!', '?', ';'
-        ])
-        
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2000,
-            chunk_overlap=0,
+            chunk_size=1500,
+            chunk_overlap=200,
             length_function=len,
             separators=self.separators
         )
+
+    def preprocess_text(self, text: str) -> str:
+        """
+        预处理文本，清理和标准化可能影响翻译的格式问题
+        """
+        # 移除多余的空白字符
+        text = re.sub(r'[ \t]+', ' ', text)
+        
+        # 标准化换行符
+        text = re.sub(r'\r\n', '\n', text)
+        text = re.sub(r'\r', '\n', text)
+        
+        # 移除行首行尾的多余空格
+        lines = text.split('\n')
+        cleaned_lines = [line.strip() for line in lines]
+        text = '\n'.join(cleaned_lines)
+        
+        # 修复分段的单词（行尾有连字符的情况）
+        text = re.sub(r'(\w+)-\s*\n\s*(\w+)', r'\1\2\n', text)
+        
+        return text
+
+    def postprocess_translation(self, text: str) -> str:
+        """
+        后处理翻译结果，优化格式
+        """
+        # 清理多余的空格
+        text = re.sub(r'[ \t]+', ' ', text)
+        
+        # 确保标题前后有空行并移除标题中的格式
+        text = self._normalize_headers(text)
+        
+        # 修复可能的段落分隔问题
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # 确保文档开头和结尾没有多余的空行
+        text = text.strip()
+        
+        return text
+
+    def _normalize_headers(self, text: str) -> str:
+        """
+        标准化标题格式：
+        1. 确保标题前后有空行
+        2. 移除标题中的加粗、斜体等格式
+        """
+        # 匹配标题行（以1-6个#开头的行）
+        def clean_header(match):
+            header_prefix = match.group(1)  # #, ##, ### 等
+            header_content = match.group(2)  # 标题内容
+            
+            # 移除标题内的格式标记（如 **bold** 或 *italic*）
+            # 移除加粗格式 **text**
+            header_content = re.sub(r'\*\*(.*?)\*\*', r'\1', header_content)
+            # 移除斜体格式 *text* 或 _text_
+            header_content = re.sub(r'(?<!\*)\*(?!\*)(.*?) (?<!\*)\*(?!\*)', r'\1', header_content)
+            header_content = re.sub(r'(?<!_)_(?!_)(.*?) (?<!_)_(?!_)', r'\1', header_content)
+            # 移除行内代码格式 `code`
+            header_content = re.sub(r'`(.*?)`', r'\1', header_content)
+            
+            # 确保标题前后有空行
+            return f"\n\n{header_prefix} {header_content.strip()}\n\n"
+        
+        # 应用标题清理函数
+        text = re.sub(r'\n?(#{1,6})\s+(.+?)\n', clean_header, text)
+        
+        # 确保文档开头是标题时也正确处理
+        text = re.sub(r'^(#{1,6})\s+(.+?)\n', clean_header, text)
+        
+        # 清理重复的空行
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        return text.strip()
 
     def create_translation_prompt(self, text: str, previous_translation: Optional[str] = None) -> str:
         # 从配置中获取目标语言
@@ -90,144 +161,37 @@ class DocumentTranslator:
         
         language_description = language_map.get(target_language, language_map['zh-Hans'])
         
-        base_prompt = f"""Please translate the following text into {language_description}. Maintain the original markdown format, do not change the heading levels, and preserve code blocks and link formats. Only output the translated {target_language} content, do not include the original text.
+        base_prompt = f"""You are an expert academic translator and formatter. Your task is to translate academic papers while preserving and improving their formatting. 
+
+Instructions:
+1. Translate the following text into {language_description}.
+2. Maintain all markdown formatting including headers, lists, code blocks, and links.
+3. Keep the same header hierarchy.
+4. Only output the translated {target_language} content, do not include the original text.
 
 Text to be translated:
 {text}"""
         
         if previous_translation:
-            context_prompt = """\n\nTo maintain contextual coherence, this is the translation of the previous paragraph for reference:
+            context_prompt = """\n\nTo maintain contextual coherence, here is the previous paragraph's translation for reference:
 {previous_translation}
 
-Also, FOLLOWING THESE INSTRUCTIONS:
-1.There may be extra spaces between characters or words in the main text. Please remove them! 
-2.Do not modify any links in the file, including image references or URLs! Do not modify them! They are completely correct. 
-3.Pay attention to correcting the heading levels. For example, 1, 2, and 3 are generally first-level headings, and 1.1 and 1.2 are generally second-level headings, and so on. There may also be other forms of heading numbering, in which case please judge for yourself and ensure that their hierarchical relationship is correct. ATTENTION: Titles must have blank lines before and after them. If they don't, please add them.
-4.Sometimes the text in the headers and footers may be mixed in the main text and interrupt the text, affecting reading. If it is like the journal or article title or page number mixed in, delete it; if it is nonsense such as "Project supported by..." or "These authors contributed equally to this work.", also delete it. If it is the author's email address, also delete it. In short, delete all headers, footers, and footnotes that commonly appear on the first page of the academic paper PDF.
-\nPlease ensure that this translation is consistent with the above text in terms of terminology and style. Make sure you only output the translation result, without any other explanations or labels like "TRANSLATED TEXT". Again, do not output anything other than the translated text. 
+Additional formatting instructions:
+1. Remove any extra spaces between characters or words in the main text.
+2. Preserve all links, image references, and URLs exactly as they appear.
+3. Correct any header levels if needed (e.g., 1, 2, 3 are first-level; 1.1, 1.2 are second-level).
+4. Ensure headers are properly separated with blank lines before and after.
+5. Maintain consistent terminology and writing style with the previous translation.
+6. Output only the translated text without any additional labels or explanations.
 """
             return base_prompt + context_prompt
         
         return base_prompt
 
-    def validate_chunk(self, chunk: str) -> bool:
-        """验证文本块是否合适翻译
-        1. 非空
-        2. 长度适中（避免过短或过长）
-        3. 尽量以完整句子结束
-        """
-        if not chunk or len(chunk) < 50:  # 过短的块没有必要单独翻译
-            return False
-        if len(chunk) > 2000:  # 过长的块需要继续分割
-            return False
-            
-        # 检查是否以完整句子结束，但不强制要求
-        valid_endings = [sep.strip() for sep in self.separators 
-                        if sep.strip() and not sep.startswith('\n')]
-        ends_with_separator = any(chunk.endswith(end) for end in valid_endings)
-        
-        # 如果长度合适（500-1500字符）且以分隔符结束，则为最优情况
-        if 500 <= len(chunk) <= 1500 and ends_with_separator:
-            return True
-            
-        # 如果长度在可接受范围内，即使不以分隔符结束也可以接受
-        return 200 <= len(chunk) <= 1800
-
-    def retry_split_chunk(self, chunk: str, max_retries: int = 3) -> List[str]:
-        """尝试重新分割不合法的文本块"""
-        if len(chunk) <= 2000 or max_retries <= 0:
-            return [chunk]
-        
-        # 从后往前查找最近的合法分割点
-        for sep in self.separators:
-            sep = sep.strip()
-            if not sep:
-                continue
-            
-            last_pos = chunk.rfind(sep, 0, 2000)
-            if last_pos > 0:
-                first_part = chunk[:last_pos + len(sep)]
-                second_part = chunk[last_pos + len(sep):]
-                
-                if self.validate_chunk(first_part):
-                    # 递归处理剩余部分
-                    return [first_part] + self.retry_split_chunk(second_part, max_retries - 1)
-        
-        # 如果实在找不到合适的分割点，返回原文本
-        return [chunk]
-
-    def _is_valid_chunk_size(self, chunk_size: int) -> bool:
-        MIN_SIZE = 10
-        MAX_SIZE = 2000
-        
-        if chunk_size < MIN_SIZE or chunk_size > MAX_SIZE:
-            return False
-        return True
-
-    def _find_best_split_position(self, text: str, target_pos: int, search_range: int = 500) -> int:
-        text_len = len(text)
-        start_pos = max(0, target_pos - search_range)
-        end_pos = min(text_len, target_pos + search_range)
-        
-        best_pos = -1
-        min_distance = float('inf')
-        
-        for sep in self.separators:
-            sep = sep.strip()
-            if not sep:
-                continue
-                
-            pos = text.find(sep, start_pos, end_pos)
-            while pos != -1:
-                distance = abs(pos - target_pos)
-                if distance < min_distance:
-                    min_distance = distance
-                    best_pos = pos + len(sep)
-                pos = text.find(sep, pos + 1, end_pos)
-        
-        if best_pos == -1:
-            for i in range(start_pos, end_pos):
-                if text[i] in self.last_resort_punctuation:
-                    distance = abs(i - target_pos)
-                    if distance < min_distance:
-                        min_distance = distance
-                        best_pos = i + 1
-        
-        return best_pos
-
-    def split_text_chunk(self, chunk: str) -> List[str]:
-
-        if self._is_valid_chunk_size(len(chunk)):
-            return [chunk]
-            
-        split_pos = self._find_best_split_position(chunk, len(chunk) // 2)
-        
-        if split_pos == -1:
-            split_pos = len(chunk) // 2
-            
-        first_part = chunk[:split_pos].strip()
-        second_part = chunk[split_pos:].strip()
-        
-        result = []
-        if first_part:
-            result.extend(self.split_text_chunk(first_part))
-        if second_part:
-            result.extend(self.split_text_chunk(second_part))
-            
-        return result
-
     def translate_chunk(self, text: str, previous_translation: Optional[str] = None) -> str:
         try:
-            if not self.validate_chunk(text):
-                logger.warning(f"Illegal text block detected, attempting to re-split...")
-                chunks = self.retry_split_chunk(text)
-                if len(chunks) > 1:
-                    translated_parts = []
-                    for chunk in chunks:
-                        translated_part = self.translate_chunk(chunk, previous_translation)
-                        translated_parts.append(translated_part)
-                        previous_translation = translated_part
-                    return " ".join(translated_parts)
+            # 预处理文本
+            text = DocumentFormatter.preprocess_text(text)
             
             prompt = self.create_translation_prompt(text, previous_translation)
             prompt_template = PromptTemplate(
@@ -242,7 +206,10 @@ Also, FOLLOWING THESE INSTRUCTIONS:
             result = prompt_template.format(**input_variables)
             response = self.llm.predict(result)
             
-            return response.strip()
+            # 后处理翻译结果
+            translated_text = DocumentFormatter.postprocess_translation(response.strip())
+            
+            return translated_text
             
         except Exception as e:
             logger.error(f"Error occurred while translating chunk: {str(e)}")
@@ -255,38 +222,60 @@ Also, FOLLOWING THESE INSTRUCTIONS:
         try:
             provider_name = self.provider_settings.get('name', self.active_provider)
             model_name = self.provider_settings.get('model_name', 'unknown')
+            
+            # 预处理整个文档
+            text = DocumentFormatter.preprocess_text(text)
+            
+            # 使用 MarkdownHeaderTextSplitter 分割文档以保留标题信息
             markdown_docs = self.markdown_splitter.split_text(text)
             
-            all_chunks = []
-            for doc in markdown_docs:
-                initial_chunks = self.text_splitter.split_text(doc.page_content)
-                for chunk in initial_chunks:
-                    processed_chunks = self.split_text_chunk(chunk)
-                    all_chunks.extend(processed_chunks)
-            
-            logger.info(f"The document has been split into {len(all_chunks)} chunks")
-            
-            translated_chunks = []
+            # 处理每个分割后的文档块
+            translated_sections = []
             previous_translation = None
             progress_tracker = await TranslationProgress.get_instance()
-            total_chunks = len(all_chunks)
+            total_sections = len(markdown_docs)
             
-            for i, chunk in enumerate(all_chunks):
-                translated_text = self.translate_chunk(chunk, previous_translation)
-                translated_chunks.append(translated_text)
-                previous_translation = translated_text
+            for i, doc in enumerate(markdown_docs):
+                # 对每个文档块使用 text_splitter 进一步分割（如果需要）
+                chunks = self.text_splitter.split_text(doc.page_content)
                 
-                progress = int((i + 1) * 100 / total_chunks)
+                # 翻译每个块
+                translated_chunks = []
+                for chunk in chunks:
+                    translated_chunk = self.translate_chunk(chunk, previous_translation)
+                    translated_chunks.append(translated_chunk)
+                    previous_translation = translated_chunk
+                
+                # 合并当前章节的翻译结果
+                section_translation = "\n\n".join(translated_chunks)
+                
+                # 如果原文档块有标题元数据，添加标题上下文
+                if doc.metadata:
+                    # 构建标题上下文
+                    header_context = ""
+                    for header_level in ["header1", "header2", "header3", "header4", "header5", "header6"]:
+                        if header_level in doc.metadata:
+                            header_symbol = "#" * int(header_level[-1])
+                            header_context += f"{header_symbol} {doc.metadata[header_level]}\n\n"
+                    
+                    section_translation = header_context + section_translation
+                
+                translated_sections.append(section_translation)
+                
+                # 更新进度
+                progress = int((i + 1) * 100 / total_sections)
                 await progress_tracker.update(
                     progress=progress,
                     translated_chunks=i + 1,
-                    total_chunks=total_chunks,
-                    status=f"Translating the {i + 1}/{total_chunks} chunk..."
+                    total_chunks=total_sections,
+                    status=f"Translating section {i + 1}/{total_sections}..."
                 )
             
-            final_translation = "\n\n".join(translated_chunks)
+            # 合并所有章节的翻译结果
+            final_translation = "\n\n".join(translated_sections)
             
-            final_translation = re.sub(r'\n{3,}', '\n\n', final_translation)
+            # 最终后处理
+            final_translation = DocumentFormatter.postprocess_translation(final_translation)
             
             return create_translation_response(
                 translated_text=final_translation,

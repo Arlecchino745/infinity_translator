@@ -6,3 +6,4 @@ logs/
 data/
 build/
 dist/
+config/settings.user.json

@@ -29,76 +29,46 @@ def get_settings():
     return load_settings()
 
 # 挂载静态文件目录
-static_path = Path(__file__).parent / "static"
-static_path.mkdir(exist_ok=True)
-app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 配置favicon
-@app.get('/favicon.ico', include_in_schema=False)
-async def favicon():
-    return FileResponse(str(static_path / 'favicon.ico'))
+# 设置模板
+templates = Jinja2Templates(directory="templates")
 
-# 设置模板目录
-templates_path = Path(__file__).parent / "templates"
-templates_path.mkdir(exist_ok=True)
-templates = Jinja2Templates(directory=str(templates_path))
-
-class TranslationRequest(BaseModel):
-    text: str
+# 读取配置
+settings = get_settings()
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, "settings": settings})
 
 @app.get("/api/providers")
 async def get_providers():
-    settings = get_settings()
-    return JSONResponse(content={
-        "active_provider": settings["active_provider"],
-        "providers": settings["providers"]
-    })
+    return {"providers": settings["providers"], "active_provider": settings["active_provider"]}
 
 @app.get("/api/languages")
 async def get_languages():
-    settings = get_settings()
-    return JSONResponse(content={
-        "target_language": settings["target_language"],
-        "language_list": settings["language_list"]
-    })
+    return {"language_list": settings["language_list"], "target_language": settings.get("target_language", "zh-Hans")}
 
-@app.post("/api/set-provider")
-async def set_provider(request: Request):
-    data = await request.json()
-    provider = data.get("provider")
-    if not provider:
-        return JSONResponse(status_code=400, content={"message": "Provider is required"})
+@app.post("/api/settings")
+async def update_settings(new_settings: dict):
+    # 更新模型信息
+    active_provider = new_settings.get("active_provider", settings["active_provider"])
+    model_name = new_settings.get("model_name")
     
-    settings = get_settings()
-    if provider not in settings["providers"]:
-        return JSONResponse(status_code=400, content={"message": "Invalid provider"})
+    if model_name:
+        settings["providers"][active_provider]["model_name"] = model_name
     
-    settings["active_provider"] = provider
+    # 更新目标语言
+    target_language = new_settings.get("target_language")
+    if target_language:
+        settings["target_language"] = target_language
+    
+    # 保存设置
     save_settings(settings)
-    
-    return JSONResponse(content={"status": "success"})
+    return {"message": "Settings updated successfully"}
 
-@app.post("/api/set-language")
-async def set_language(request: Request):
-    data = await request.json()
-    language = data.get("language")
-    if not language:
-        return JSONResponse(status_code=400, content={"message": "Language is required"})
-    
-    settings = get_settings()
-    # 验证语言是否在语言列表中
-    language_codes = [lang["code"] for lang in settings["language_list"]]
-    if language not in language_codes:
-        return JSONResponse(status_code=400, content={"message": "Invalid language"})
-    
-    settings["target_language"] = language
-    save_settings(settings)
-    
-    return JSONResponse(content={"status": "success"})
+# 导入 TranslationProgress
+from src.progress import TranslationProgress
 
 @app.get("/translate-progress")
 async def translation_progress():

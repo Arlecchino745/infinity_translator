@@ -8,5 +8,5 @@ uvicorn
 jinja2
 python-multipart
 psutil
-PySide6
+flet
 pyinstaller

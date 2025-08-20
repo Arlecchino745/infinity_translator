@@ -18,7 +18,10 @@ def load_settings():
     """Load settings from settings.json file"""
     # Try multiple possible locations for settings.json
     settings_paths = [
-        get_resource_path('config/settings.json'),
+        get_resource_path('config/settings.user.json'),  # User custom settings (highest priority)
+        Path(__file__).parent / 'settings.user.json',
+        Path('config/settings.user.json'),
+        get_resource_path('config/settings.json'),  # Default settings
         Path(__file__).parent / 'settings.json',
         Path('config/settings.json'),
         Path('settings.json')
@@ -77,14 +80,15 @@ def get_default_settings():
     }
 
 def save_settings(settings):
-    """Save settings to settings.json file"""
-    # Try to save to the same location where we loaded from
+    """Save settings to settings.user.json file"""
+    # Try to save to the user settings file
     settings_paths = [
-        get_resource_path('config/settings.json'),
-        Path(__file__).parent / 'settings.json',
-        Path('config/settings.json')
+        get_resource_path('config/settings.user.json'),
+        Path(__file__).parent / 'settings.user.json',
+        Path('config/settings.user.json')
     ]
     
+    # If user settings file doesn't exist, try to create it
     for settings_path in settings_paths:
         try:
             # Ensure directory exists
