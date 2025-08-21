@@ -9,20 +9,20 @@ class TranslationOutputFormatter:
 
     def format_translation(self, translated_text: str, original_filename: str) -> tuple[str, str]:
         """
-        格式化翻译结果为markdown格式，并生成输出文件名
+        Format translation result as markdown and generate output filename
         
         Args:
-            translated_text: 翻译后的文本
-            original_filename: 原始文件名
+            translated_text: Translated text
+            original_filename: Original filename
         
         Returns:
-            tuple: (格式化后的文本, 输出文件名)
+            tuple: (Formatted text, Output filename)
         """
-        # 添加翻译信息头
+        # Add translation info header
         header = f"Translate by {self.provider_name}: {self.model_name}\n\n"
         formatted_text = header + translated_text
 
-        # 生成输出文件名
+        # Generate output filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = f"translated_{Path(original_filename).stem}_{timestamp}.md"
         
@@ -30,16 +30,16 @@ class TranslationOutputFormatter:
 
 def create_translation_response(translated_text: str, original_filename: str, provider_name: str, model_name: str) -> tuple[bytes, str]:
     """
-    创建翻译响应
+    Create translation response
     
     Args:
-        translated_text: 翻译后的文本
-        original_filename: 原始文件名
-        provider_name: 服务商名称
-        model_name: 模型名称
+        translated_text: Translated text
+        original_filename: Original filename
+        provider_name: Provider name
+        model_name: Model name
     
     Returns:
-        tuple: (文件内容的字节流, 输出文件名)
+        tuple: (Byte stream of file content, Output filename)
     """
     formatter = TranslationOutputFormatter(provider_name, model_name)
     formatted_text, output_filename = formatter.format_translation(translated_text, original_filename)

@@ -9,10 +9,10 @@ import uvicorn
 from pathlib import Path
 import json
 
-# 创建FastAPI实例
+# Create FastAPI instance
 app = FastAPI(title="Infinity Translator")
 
-# 允许CORS
+# Allow CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,13 +28,13 @@ from config.settings import load_settings, save_settings
 def get_settings():
     return load_settings()
 
-# 挂载静态文件目录
+# Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 设置模板
+# Setup templates
 templates = Jinja2Templates(directory="templates")
 
-# 读取配置
+# Load settings
 settings = get_settings()
 
 @app.get("/", response_class=HTMLResponse)
@@ -51,19 +51,19 @@ async def get_languages():
 
 @app.post("/api/settings")
 async def update_settings(new_settings: dict):
-    # 更新模型信息
+    # Update model information
     active_provider = new_settings.get("active_provider", settings["active_provider"])
     model_name = new_settings.get("model_name")
     
     if model_name:
         settings["providers"][active_provider]["model_name"] = model_name
     
-    # 更新目标语言
+    # Update target language
     target_language = new_settings.get("target_language")
     if target_language:
         settings["target_language"] = target_language
     
-    # 保存设置
+    # Save settings
     save_settings(settings)
     return {"message": "Settings updated successfully"}
 
@@ -74,7 +74,7 @@ async def set_language(request: Request):
     if not language:
         return JSONResponse(status_code=400, content={"message": "Language is required"})
     
-    # 验证语言是否在语言列表中
+    # Verify that the language is in the language list
     language_codes = [lang["code"] for lang in settings["language_list"]]
     if language not in language_codes:
         return JSONResponse(status_code=400, content={"message": "Invalid language"})
@@ -84,12 +84,12 @@ async def set_language(request: Request):
     
     return JSONResponse(content={"status": "success"})
 
-# 导入 TranslationProgress
+# Import TranslationProgress
 from src.progress import TranslationProgress
 
 @app.get("/translate-progress")
 async def translation_progress():
-    """获取翻译进度的 Server-Sent Events 端点"""
+    """Server-Sent Events endpoint for getting translation progress"""
     from src.progress import TranslationProgress
     import asyncio
     import json
@@ -116,20 +116,20 @@ async def translate(file: UploadFile = File(...), model_name: str = Form(...)):
         content = await file.read()
         text = content.decode('utf-8')
         
-        # 获取设置并更新模型名称
+        # Get settings and update model name
         settings = get_settings()
         active_provider = settings["active_provider"]
         provider_info = settings["providers"][active_provider]
         provider_info["model_name"] = model_name
         
-        # 保存更新后的设置
+        # Save updated settings
         save_settings(settings)
         
-        # 获取翻译器实例并执行翻译
+        # Get translator instance and perform translation
         translator = DocumentTranslator()
         content_bytes, output_filename = await translator.translate_document(text, file.filename)
         
-        # 返回翻译后的文件
+        # Return translated file
         headers = {
             'Content-Disposition': f'attachment; filename="{output_filename}"'
         }

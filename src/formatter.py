@@ -7,27 +7,73 @@ logger = logging.getLogger(__name__)
 
 class DocumentFormatter:
     """
-    文档格式化器，负责处理文档的预处理和后处理
+    Document formatter, responsible for preprocessing and postprocessing documents
     """
+    
+    @staticmethod
+    def extract_code_blocks(text: str) -> Tuple[str, List[str]]:
+        """提取代码块和行内代码，避免误处理"""
+        code_blocks = []
+        placeholder_text = text
+        
+        # 提取代码块和行内代码
+        code_pattern = r'```[\s\S]*?```|`[^`\n]*`'
+        for i, match in enumerate(re.finditer(code_pattern, text)):
+            placeholder = f"__CODE_BLOCK_{i}__"
+            code_blocks.append(match.group())
+            placeholder_text = placeholder_text.replace(match.group(), placeholder, 1)
+        
+        return placeholder_text, code_blocks
+    
+    @staticmethod
+    def restore_code_blocks(text: str, code_blocks: List[str]) -> str:
+        """恢复代码块"""
+        for i, code_block in enumerate(code_blocks):
+            placeholder = f"__CODE_BLOCK_{i}__"
+            text = text.replace(placeholder, code_block)
+        return text
+    
+    @staticmethod
+    def extract_links_and_images(text: str) -> Tuple[str, List[str]]:
+        """提取链接和图片，避免翻译URL"""
+        elements = []
+        placeholder_text = text
+        
+        # 提取图片和链接
+        link_pattern = r'!\[([^\]]*)\]\([^\)]+\)|\[([^\]]+)\]\([^\)]+\)'
+        for i, match in enumerate(re.finditer(link_pattern, text)):
+            placeholder = f"__LINK_ELEMENT_{i}__"
+            elements.append(match.group())
+            placeholder_text = placeholder_text.replace(match.group(), placeholder, 1)
+        
+        return placeholder_text, elements
+    
+    @staticmethod
+    def restore_links_and_images(text: str, elements: List[str]) -> str:
+        """恢复链接和图片"""
+        for i, element in enumerate(elements):
+            placeholder = f"__LINK_ELEMENT_{i}__"
+            text = text.replace(placeholder, element)
+        return text
     
     @staticmethod
     def preprocess_text(text: str) -> str:
         """
-        预处理文本，清理和标准化可能影响翻译的格式问题
+        Preprocess text, clean and normalize formatting issues that may affect translation
         """
-        # 移除多余的空白字符
+        # Remove extra whitespace characters
         text = re.sub(r'[ \t]+', ' ', text)
         
-        # 标准化换行符
+        # Normalize line breaks
         text = re.sub(r'\r\n', '\n', text)
         text = re.sub(r'\r', '\n', text)
         
-        # 移除行首行尾的多余空格
+        # Remove extra spaces at the beginning and end of lines
         lines = text.split('\n')
         cleaned_lines = [line.strip() for line in lines]
         text = '\n'.join(cleaned_lines)
         
-        # 修复分段的单词（行尾有连字符的情况）
+        # Fix hyphenated words (cases where words are split with hyphens at line ends)
         text = re.sub(r'(\w+)-\s*\n\s*(\w+)', r'\1\2\n', text)
         
         return text
@@ -35,18 +81,18 @@ class DocumentFormatter:
     @staticmethod
     def postprocess_translation(text: str) -> str:
         """
-        后处理翻译结果，优化格式
+        Postprocess translation result, optimize formatting
         """
-        # 清理多余的空格
+        # Clean up extra spaces
         text = re.sub(r'[ \t]+', ' ', text)
         
-        # 确保标题前后有空行并移除标题中的格式
+        # Ensure headers have blank lines before and after and remove formatting from headers
         text = DocumentFormatter._normalize_headers(text)
         
-        # 修复可能的段落分隔问题
+        # Fix possible paragraph separation issues
         text = re.sub(r'\n{3,}', '\n\n', text)
         
-        # 确保文档开头和结尾没有多余的空行
+        # Ensure no extra blank lines at the beginning and end of the document
         text = text.strip()
         
         return text
@@ -54,34 +100,40 @@ class DocumentFormatter:
     @staticmethod
     def _normalize_headers(text: str) -> str:
         """
-        标准化标题格式：
-        1. 确保标题前后有空行
-        2. 移除标题中的加粗、斜体等格式
+        Normalize header formatting:
+        1. Ensure headers have blank lines before and after
+        2. Remove bold, italic, and other formatting from headers
         """
-        # 匹配标题行（以1-6个#开头的行）
+        # 先提取代码块，避免误处理
+        placeholder_text, code_blocks = DocumentFormatter.extract_code_blocks(text)
+        
+        # Match header lines (lines starting with 1-6 # characters)
         def clean_header(match):
-            header_prefix = match.group(1)  # #, ##, ### 等
-            header_content = match.group(2)  # 标题内容
+            header_prefix = match.group(1)  # #, ##, ###, etc.
+            header_content = match.group(2)  # Header content
             
-            # 移除标题内的格式标记（如 **bold** 或 *italic*）
-            # 移除加粗格式 **text**
+            # Remove formatting marks from headers (e.g., **bold** or *italic*)
+            # Remove bold formatting **text**
             header_content = re.sub(r'\*\*(.*?)\*\*', r'\1', header_content)
-            # 移除斜体格式 *text* 或 _text_
+            # Remove italic formatting *text* or _text_
             header_content = re.sub(r'\*(.*?)\*', r'\1', header_content)
             header_content = re.sub(r'_(.*?)_', r'\1', header_content)
-            # 移除行内代码格式 `code`
+            # Remove inline code formatting `code` (这里应该已经被提取了)
             header_content = re.sub(r'`(.*?)`', r'\1', header_content)
             
-            # 确保标题前后有空行
+            # Ensure headers have blank lines before and after
             return f"\n\n{header_prefix} {header_content.strip()}\n\n"
         
-        # 应用标题清理函数
-        text = re.sub(r'\n?(#{1,6})\s+(.+?)\n', clean_header, text)
+        # Apply header cleaning function
+        placeholder_text = re.sub(r'\n?(#{1,6})\s+(.+?)\n', clean_header, placeholder_text)
         
-        # 确保文档开头是标题时也正确处理
-        text = re.sub(r'^(#{1,6})\s+(.+?)\n', clean_header, text)
+        # Ensure headers at the beginning of the document are handled correctly
+        placeholder_text = re.sub(r'^(#{1,6})\s+(.+?)\n', clean_header, placeholder_text)
         
-        # 清理重复的空行
-        text = re.sub(r'\n{3,}', '\n\n', text)
+        # Clean up duplicate blank lines
+        placeholder_text = re.sub(r'\n{3,}', '\n\n', placeholder_text)
         
-        return text.strip()
+        # 恢复代码块
+        result = DocumentFormatter.restore_code_blocks(placeholder_text, code_blocks)
+        
+        return result.strip()

@@ -10,3 +10,4 @@ python-multipart
 psutil
 flet
 pyinstaller
+tenacity
