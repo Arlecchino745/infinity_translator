@@ -1,16 +1,16 @@
 # Infinity Translator
 
 Infinity Translator est un logiciel qui utilise de grands modèles linguistiques pour la traduction de textes longs, avec une interface utilisateur moderne et esthétique. Il peut segmenter et prétraiter de manière appropriée de grands documents et les traduire en plusieurs langues.
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot2.png)
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
 
-## Fonctionnalités
+## Fonctionnalités ✨
 
-- Prend en charge la traduction de documents volumineux sans limite de longueur
-- Prétraite les documents Markdown pour optimiser l'apparence visuelle des traductions
-- Affiche la progression de la traduction en temps réel et enregistre automatiquement les résultats de la traduction
+- Prend en charge la traduction de documents volumineux sans limite de longueur 📄
+- Prétraite les documents Markdown pour optimiser l'apparence visuelle des traductions 🎨
+- Affiche la progression de la traduction en temps réel et enregistre automatiquement les résultats de la traduction ⏱️
 
-## Démarrage rapide
+## Démarrage rapide 🚀
 
 1. Clonez le projet et basculez vers le dossier du projet :
 ```bash
@@ -32,10 +32,10 @@ source ./.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Configuration de la clé API : Reportez-vous au fichier `.env.example` dans le dossier du projet.
+3. Configuration de la clé API : Reportez-vous au fichier `.env.example` dans le dossier du projet. ⚙️
    - Copiez le fichier `.env.example` vers `.env` et renseignez votre clé API.
 
-4. (Facultatif) Créez votre configuration personnalisée dans le dossier config en suivant les commentaires dans settings.json.
+4. (Facultatif) Créez votre configuration personnalisée dans le dossier config en suivant les commentaires dans settings.json. 🛠️
    - Si vous avez besoin d'une configuration personnalisée, veuillez vous référer au fichier `config/settings.json.example`.
 
 5. Exécutez après avoir terminé les étapes ci-dessus :
@@ -43,9 +43,9 @@ pip install -r requirements.txt
 # Démarre l'application Web
 python web_app.py
 ```
-Ensuite, entrez `localhost:8000` ou `127.0.0.1:8000` dans la barre d'adresse de votre navigateur et confirmez.
+Ensuite, entrez `localhost:8000` ou `127.0.0.1:8000` dans la barre d'adresse de votre navigateur et confirmez. 🎉
 
-### Configuration des paramètres de l'application
+### Configuration des paramètres de l'application ⚙️
 
 Le projet contient deux fichiers de configuration :
 - `config/settings.json` - Fichier de configuration par défaut, ne doit pas être modifié
@@ -60,23 +60,23 @@ Si vous avez besoin d'une configuration personnalisée avancée (par exemple, aj
    ```
 
 2. Modifiez la configuration dans le fichier `config/settings.user.json`
-   - Modifiez le fichier `settings.user.json` selon vos besoins, par exemple en ajoutant de nouveaux modèles ou en ajustant les paramètres.
+   - Modifiez le fichier `settings.user.json` selon vos besoins, par exemple ajouter de nouveaux modèles ou ajuster les paramètres.
 
-3. L'application chargera en priorité settings.user.json, de sorte que votre configuration personnalisée ne sera pas suivie par Git
-   - Cela évite que les configurations personnalisées ne soient validées dans le référentiel distant par Git.
+3. L'application chargera en priorité settings.user.json, donc votre configuration personnalisée ne sera pas suivie par Git
+   - Cela évite que les configurations personnalisées soient validées dans le référentiel distant par Git.
 
-## Pile technologique
+## Pile technologique 💻
 
 - Backend : FastAPI + Uvicorn
 - Frontend : Vue.js + Axios
 - Bureau : Flet (basé sur Flutter)
-- Traduction : LangChain + API OpenAI
-- Construction : PyInstaller + outil d'empaquetage Flet
+- Traduction : LangChain + OpenAI API
+- Construction : PyInstaller + Outil d'emballage Flet
 
-## Licence
+## Licence 📄
 
 Le projet est sous licence MIT.
 
 ## Déclaration AIGC
 
-Ce projet est assisté par l'IA. Veuillez contacter l'auteur s'il y a une violation involontaire.
+Ce projet est assisté par l'IA. Veuillez contacter l'auteur en cas d'infraction involontaire.

@@ -1,16 +1,16 @@
 # Infinity Translator
 
 Infinity Translator 是一款利用大型語言模型進行長文本翻譯的軟體，具有現代且美觀的 UI 介面。它可以適當地分塊和預處理大型文檔，並將它們翻譯成多種語言。
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot2.png)
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
 
-## 功能
+## 功能 ✨
 
-- 支援大型文檔翻譯，沒有文檔長度限制
-- 預處理 Markdown 文檔，以優化翻譯的視覺外觀
-- 實時顯示翻譯進度並自動保存翻譯結果
+- 支援大型文檔翻譯，沒有文檔長度限制 📄
+- 預處理 Markdown 文檔，以優化翻譯的視覺外觀 🎨
+- 實時顯示翻譯進度並自動保存翻譯結果 ⏱️
 
-## 快速開始
+## 快速開始 🚀
 
 1. 克隆專案並切換到專案資料夾：
 ```bash
@@ -32,10 +32,10 @@ source ./.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. API 金鑰配置：請參閱專案資料夾中的 `.env.example` 檔案。
+3. API 金鑰配置：請參閱專案資料夾中的 `.env.example` 檔案。 ⚙️
    - 將 `.env.example` 檔案複製到 `.env` 並填寫您的 API 金鑰。
 
-4. （可選）根據 config 資料夾中 settings.json 中的註釋，建立您的個人化配置。
+4. （可選）根據 config 資料夾中 settings.json 中的註釋，建立您的個人化配置。 🛠️
    - 如果您需要自定義配置，請參閱 `config/settings.json.example` 檔案。
 
 5. 完成上述步驟後運行：
@@ -43,40 +43,40 @@ pip install -r requirements.txt
 # 啟動 Web 應用程式
 python web_app.py
 ```
-然後在瀏覽器的網址列中輸入 `localhost:8000` 或 `127.0.0.1:8000` 並確認。
+然後在瀏覽器的網址列中輸入 `localhost:8000` 或 `127.0.0.1:8000` 並確認。 🎉
 
-### 應用程式設定配置
+### 應用程式設定配置 ⚙️
 
 該專案包含兩個配置文件：
 - `config/settings.json` - 預設配置文件，不應修改
-- `config/settings.json.example` - 參考用的配置範本檔案
+- `config/settings.json.example` - 配置模板文件供參考
 
-如果您需要進階的自定義配置（例如，新增模型或服務提供商），請按照以下步驟操作：
+如果您需要高級自定義配置（例如，添加新模型或服務提供商），請按照以下步驟操作：
 
-1. 複製 `config/settings.json` 檔案並將其重新命名為 `config/settings.user.json`：
+1. 複製 `config/settings.json` 檔案並重新命名為 `config/settings.user.json`：
    ```bash
-   # 將預設配置文件複製到用戶定義的配置文件
+   # 複製預設配置文件到用戶定義的配置文件
    cp config/settings.json config/settings.user.json
    ```
 
 2. 修改 `config/settings.user.json` 檔案中的配置
-   - 根據您的需求編輯 `settings.user.json` 檔案，例如新增模型或調整參數。
+   - 根據您的需要編輯 `settings.user.json` 檔案，例如添加新模型或調整參數。
 
-3. 應用程式將優先載入 settings.user.json，因此您的自定義配置不會被 Git 追蹤
-   - 這可以避免自定義配置被 Git 提交到遠端儲存庫。
+3. 應用程式將優先加載 settings.user.json，因此您的自定義配置不會被 Git 跟踪
+   - 這避免了自定義配置被 Git 提交到遠程倉庫。
 
-## 技術堆疊
+## 技術棧 💻
 
 - 後端：FastAPI + Uvicorn
 - 前端：Vue.js + Axios
-- 桌面：Flet (基於 Flutter)
+- 桌面端：Flet（基於 Flutter）
 - 翻譯：LangChain + OpenAI API
-- 建置：PyInstaller + Flet 打包工具
+- 構建：PyInstaller + Flet 打包工具
 
-## 許可證
+## 許可證 📄
 
-該專案採用 MIT 許可證。
+該專案基於 MIT 許可證。
 
-## AIGC聲明
+## AIGC 聲明
 
-本項目含有人工智慧輔助生成内容。如有無意侵犯了您的權益，請聯繫作者。
+該專案由 AI 輔助完成。如有無意侵權，請聯繫作者。

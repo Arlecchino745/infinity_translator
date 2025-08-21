@@ -5,8 +5,8 @@
 ---
 Infinity Translator is a software that utilizes large language models for long text translation, with a modern and beautiful UI interface. It can appropriately chunk and preprocess large documents and translate them into multiple languages.
 
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot2.png)
-![image](https://github.com/Arlecchino745/infinity_translator/blob/main/img/screenshot.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
+![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
 
 ## Features ✨
 
@@ -14,7 +14,7 @@ Infinity Translator is a software that utilizes large language models for long t
 - Preprocesses Markdown documents to optimize the visual appearance of translations 🎨
 - Displays translation progress in real-time and automatically saves translation results ⏱️
 
-## Start from the source code 🚀
+## Start from the source code (dev)
 
 1. Clone the project and switch to the project folder:
 ```bash
