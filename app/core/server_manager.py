@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 class ServerManager:
-    """Manages the FastAPI server in a separate thread for the desktop application"""
+    """Manages the FastAPI server in a separate thread"""
     
     def __init__(self, port=None):
         # 修复PyInstaller环境下的日志问题

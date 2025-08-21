@@ -73,14 +73,5 @@ If you need advanced custom configuration (e.g., adding new models or service pr
 
 - Backend: FastAPI + Uvicorn
 - Frontend: Vue.js + Axios
-- Desktop: Flet (based on Flutter)
 - Translation: LangChain + OpenAI API
-- Build: PyInstaller + Flet packaging tool
-
-## License 📄
-
-The project is licensed under the MIT License.
-
-## AIGC Statement
-
-This project is AI-assisted. Please contact the author if there is any inadvertent infringement.
+- Build: PyInstaller

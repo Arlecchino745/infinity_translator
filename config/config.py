@@ -37,4 +37,4 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 if not SILICONFLOW_API_KEY and not OPENROUTER_API_KEY:
     print("Warning: No API keys found. Please configure API keys in the .env file or environment variables.")
-    # Don't exit in desktop mode, let the application handle this gracefully
+    # Let the application handle this gracefully
