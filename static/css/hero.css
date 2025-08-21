@@ -2,8 +2,8 @@
 .hero-section {
     padding: 7rem 2rem 3rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    background-size: 100% 100%;
-    animation: gradientFlow 15s ease infinite;
+    background-size: 200% 200%;
+    animation: gradientFlow 10s ease infinite;
     position: relative;
     overflow: hidden;
     margin-bottom: 3rem;
