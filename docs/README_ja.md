@@ -69,7 +69,6 @@ python web_app.py
 
 - バックエンド：FastAPI + Uvicorn
 - フロントエンド：Vue.js + Axios
-- デスクトップ：Flet（Flutterベース）
 - 翻訳：LangChain + OpenAI API
 - ビルド：PyInstaller + Fletパッケージングツール
 

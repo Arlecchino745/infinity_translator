@@ -69,9 +69,8 @@ python web_app.py
 
 - 后端：FastAPI + Uvicorn
 - 前端：Vue.js + Axios
-- 桌面端：Flet（基于 Flutter）
 - 翻译：LangChain + OpenAI API
-- 构建：PyInstaller + Flet 打包工具
+- 构建：PyInstaller
 
 ## 许可证 📄
 

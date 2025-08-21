@@ -69,7 +69,6 @@ python web_app.py
 
 - Бэкенд: FastAPI + Uvicorn
 - Фронтенд: Vue.js + Axios
-- Десктоп: Flet (на базе Flutter)
 - Перевод: LangChain + OpenAI API
 - Сборка: PyInstaller + инструмент упаковки Flet
 

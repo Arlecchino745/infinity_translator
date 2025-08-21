@@ -69,7 +69,6 @@ Si vous avez besoin d'une configuration personnalisée avancée (par exemple, aj
 
 - Backend : FastAPI + Uvicorn
 - Frontend : Vue.js + Axios
-- Bureau : Flet (basé sur Flutter)
 - Traduction : LangChain + OpenAI API
 - Construction : PyInstaller + Outil d'emballage Flet
 

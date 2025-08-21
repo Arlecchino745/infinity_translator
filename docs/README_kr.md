@@ -69,9 +69,8 @@ python web_app.py
 
 - 백엔드: FastAPI + Uvicorn
 - 프론트엔드: Vue.js + Axios
-- 데스크톱: Flet(Flutter 기반)
 - 번역: LangChain + OpenAI API
-- 빌드: PyInstaller + Flet 패키징 도구
+- 빌드: PyInstaller
 
 ## 라이선스 📄
 

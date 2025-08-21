@@ -75,3 +75,11 @@ If you need advanced custom configuration (e.g., adding new models or service pr
 - Frontend: Vue.js + Axios
 - Translation: LangChain + OpenAI API
 - Build: PyInstaller
+
+## License 📄
+
+The project is licensed under the MIT License.
+
+## AIGC Statement
+
+This project is AI-assisted. Please contact the author if there is any inadvertent infringement.
