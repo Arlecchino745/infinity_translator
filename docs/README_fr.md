@@ -76,3 +76,7 @@ Si vous avez besoin d'une configuration personnalisée avancée (par exemple, aj
 ## Licence
 
 Le projet est sous licence MIT.
+
+## Déclaration AIGC
+
+Ce projet est assisté par l'IA. Veuillez contacter l'auteur s'il y a une violation involontaire.

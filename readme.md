@@ -14,7 +14,7 @@ Infinity Translator is a software that utilizes large language models for long t
 - Preprocesses Markdown documents to optimize the visual appearance of translations 🎨
 - Displays translation progress in real-time and automatically saves translation results ⏱️
 
-## Quick Start 🚀
+## Start from the source code 🚀
 
 1. Clone the project and switch to the project folder:
 ```bash
@@ -80,3 +80,7 @@ If you need advanced custom configuration (e.g., adding new models or service pr
 ## License 📄
 
 The project is licensed under the MIT License.
+
+## AIGC Statement
+
+This project is AI-assisted. Please contact the author if there is any inadvertent infringement.
