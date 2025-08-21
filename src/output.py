@@ -19,7 +19,7 @@ class TranslationOutputFormatter:
             tuple: (Formatted text, Output filename)
         """
         # Add translation info header
-        header = f"Translate by {self.provider_name}: {self.model_name}\n\n"
+        header = f"Translate by {self.provider_name} | {self.model_name}\n\n"
         formatted_text = header + translated_text
 
         # Generate output filename

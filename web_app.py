@@ -8,6 +8,20 @@ from pydantic import BaseModel
 import uvicorn
 from pathlib import Path
 import json
+import sys
+import os
+
+# Function to get the correct path for resources, works for both development and PyInstaller
+def get_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # Running in development mode
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 # Create FastAPI instance
 app = FastAPI(title="Infinity Translator")
@@ -28,11 +42,21 @@ from config.settings import load_settings, save_settings
 def get_settings():
     return load_settings()
 
+# Get paths for static and templates directories
+static_dir = get_resource_path("static")
+templates_dir = get_resource_path("templates")
+
+# Ensure directories exist
+if not os.path.exists(static_dir):
+    print(f"Warning: Static directory not found at {static_dir}")
+if not os.path.exists(templates_dir):
+    print(f"Warning: Templates directory not found at {templates_dir}")
+
 # Mount static files directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Setup templates
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=templates_dir)
 
 # Load settings
 settings = get_settings()

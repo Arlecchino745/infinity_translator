@@ -1,6 +1,10 @@
 # Infinity Translator
 
+<div align="center">🌐 <a href="/docs/README_zh-Hans.md">简体中文</a> | <a href="/docs/README_zh-Hant.md">繁體中文</a> | <a href="/docs/README_ja.md">日本語</a> | <a href="/docs/README_fr.md">Français</a> | <a href="/docs/README_kr.md">한국어</a> | <a href="/docs/README_ru.md">Русский</a></div>
+
+---
 Infinity Translatorは、大規模言語モデルを利用した長文翻訳ソフトウェアであり、モダンで美しいUIインターフェースを備えています。大規模なドキュメントを適切にチャンク化および前処理し、複数の言語に翻訳できます。
+
 ![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
 ![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
 
@@ -10,7 +14,16 @@ Infinity Translatorは、大規模言語モデルを利用した長文翻訳ソ�
 - Markdownドキュメントを前処理して、翻訳の見栄えを最適化 🎨
 - 翻訳の進捗状況をリアルタイムで表示し、翻訳結果を自動的に保存 ⏱️
 
-## クイックスタート 🚀
+## クイックスタート！
+
+**注意：残念ながら、いくつかの技術的な問題により、このリリースではOpenRouter経由のGoogle Gemini 2.0 Flashを使用した翻訳作業のみをサポートしています。この問題は、後続のリリースで優先的に対処されます。**
+
+1. [Releases](https://github.com/Arlecchino745/infinity_translator/releases)ページから最新のリリースをダウンロードします。
+2. ダウンロードしたzipファイルを解凍します。
+3. _internalフォルダを開き、.env.exampleをコピーして.envに名前を変更し、APIキーを入力します。
+4. `infinity_translator.exe`を実行してアプリケーションを起動します。
+
+## ソースコードから開始（開発）
 
 1. プロジェクトをクローンし、プロジェクトフォルダに切り替えます。
 ```bash
@@ -45,7 +58,7 @@ python web_app.py
 ```
 次に、ブラウザのアドレスバーに`localhost:8000`または`127.0.0.1:8000`を入力して確認します。 🎉
 
-### アプリケーション設定の構成 ⚙️
+### アプリケーション設定の構成（ソースコードから開始の場合のみ）⚙️
 
 プロジェクトには2つの構成ファイルがあります：
 - `config/settings.json` - デフォルトの構成ファイル。変更しないでください
@@ -70,7 +83,7 @@ python web_app.py
 - バックエンド：FastAPI + Uvicorn
 - フロントエンド：Vue.js + Axios
 - 翻訳：LangChain + OpenAI API
-- ビルド：PyInstaller + Fletパッケージングツール
+- ビルド：PyInstaller
 
 ## ライセンス 📄
 

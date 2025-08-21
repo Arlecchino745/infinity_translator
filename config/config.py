@@ -8,11 +8,15 @@ def get_resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
+        print(f"Using PyInstaller MEIPASS path: {base_path}")
     except AttributeError:
         # Running in development mode
         base_path = Path(__file__).parent.parent.absolute()
+        print(f"Using development path: {base_path}")
     
-    return Path(base_path) / relative_path
+    full_path = Path(base_path) / relative_path
+    print(f"Resource path for '{relative_path}': {full_path} (exists: {full_path.exists()})")
+    return full_path
 
 def load_environment():
     """Load environment variables from .env file"""

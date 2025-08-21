@@ -7,3 +7,6 @@ data/
 build/
 dist/
 config/settings.user.json
+temp_package/
+package_readme.md
+run_debug.bat

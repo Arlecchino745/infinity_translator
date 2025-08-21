@@ -8,11 +8,15 @@ def get_resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
+        print(f"Settings: Using PyInstaller MEIPASS path: {base_path}")
     except AttributeError:
         # Running in development mode
         base_path = Path(__file__).parent.parent.absolute()
+        print(f"Settings: Using development path: {base_path}")
     
-    return Path(base_path) / relative_path
+    full_path = Path(base_path) / relative_path
+    print(f"Settings: Resource path for '{relative_path}': {full_path} (exists: {full_path.exists()})")
+    return full_path
 
 def load_settings():
     """Load settings from settings.json file"""
@@ -27,11 +31,15 @@ def load_settings():
         Path('settings.json')
     ]
     
+    print("Attempting to load settings from the following paths:")
     for settings_path in settings_paths:
+        print(f"  - {settings_path} (exists: {settings_path.exists()})")
         if settings_path.exists():
             try:
                 with open(settings_path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    settings = json.load(f)
+                    print(f"Successfully loaded settings from {settings_path}")
+                    return settings
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Warning: Could not load settings from {settings_path}: {e}")
                 continue

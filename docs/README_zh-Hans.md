@@ -1,6 +1,10 @@
 # Infinity Translator
 
+<div align="center">🌐 <a href="/docs/README_zh-Hans.md">简体中文</a> | <a href="/docs/README_zh-Hant.md">繁體中文</a> | <a href="/docs/README_ja.md">日本語</a> | <a href="/docs/README_fr.md">Français</a> | <a href="/docs/README_kr.md">한국어</a> | <a href="/docs/README_ru.md">Русский</a></div>
+
+---
 Infinity Translator 是一款利用大语言模型进行长文本翻译的软件，拥有现代且美观的 UI 界面。它可以适当地对大型文档进行分块和预处理，并将其翻译成多种语言。
+
 ![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot2.png)
 ![image](https://github.com/Arlecchino745/infinity_translator/blob/main/docs/img/screenshot.png)
 
@@ -10,7 +14,16 @@ Infinity Translator 是一款利用大语言模型进行长文本翻译的软件
 - 预处理 Markdown 文档以优化翻译的视觉效果 🎨
 - 实时显示翻译进度并自动保存翻译结果 ⏱️
 
-## 快速开始 🚀
+## 快速开始！
+
+**注意：遗憾的是，由于一些技术问题，此版本仅支持通过 OpenRouter 使用 Google Gemini 2.0 Flash 进行翻译工作。此问题将在后续版本中优先解决。**
+
+1. 从 [Releases](https://github.com/Arlecchino745/infinity_translator/releases) 页面下载最新版本。
+2. 解压下载的 zip 文件。
+3. 打开 _internal 文件夹，复制 .env.example 并重命名为 .env，然后填写 API 密钥。
+4. 运行 `infinity_translator.exe` 启动应用程序。
+
+## 从源代码开始 (开发版)
 
 1. 克隆项目并切换到项目文件夹：
 ```bash
@@ -45,7 +58,7 @@ python web_app.py
 ```
 然后在浏览器的地址栏中输入 `localhost:8000` 或 `127.0.0.1:8000` 并确认。 🎉
 
-### 应用程序设置配置 ⚙️
+### 应用程序设置配置 (仅限从源代码开始) ⚙️
 
 该项目包含两个配置文件：
 - `config/settings.json` - 默认配置文件，不应修改
