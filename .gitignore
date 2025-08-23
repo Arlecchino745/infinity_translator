@@ -10,3 +10,5 @@ config/settings.user.json
 temp_package/
 package_readme.md
 run_debug.bat
+docs/review/
+docs/test/
