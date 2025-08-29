@@ -75,10 +75,15 @@ async def get_languages():
 
 @app.post("/api/settings")
 async def update_settings(new_settings: dict):
-    # Update model information
-    active_provider = new_settings.get("active_provider", settings["active_provider"])
-    model_name = new_settings.get("model_name")
+    # Update active provider
+    active_provider = new_settings.get("active_provider")
+    if active_provider and active_provider in settings["providers"]:
+        settings["active_provider"] = active_provider
+    else:
+        active_provider = settings["active_provider"]
     
+    # Update model information
+    model_name = new_settings.get("model_name")
     if model_name:
         settings["providers"][active_provider]["model_name"] = model_name
     
@@ -90,6 +95,22 @@ async def update_settings(new_settings: dict):
     # Save settings
     save_settings(settings)
     return {"message": "Settings updated successfully"}
+
+@app.post("/api/set-provider")
+async def set_provider(request: Request):
+    data = await request.json()
+    provider = data.get("provider")
+    if not provider:
+        return JSONResponse(status_code=400, content={"message": "Provider is required"})
+    
+    # Verify that the provider exists in the providers list
+    if provider not in settings["providers"]:
+        return JSONResponse(status_code=400, content={"message": "Invalid provider"})
+    
+    settings["active_provider"] = provider
+    save_settings(settings)
+    
+    return JSONResponse(content={"status": "success"})
 
 @app.post("/api/set-language")
 async def set_language(request: Request):

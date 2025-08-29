@@ -49,11 +49,17 @@ const app = createApp({
                 this.providers = response.data.providers;
                 this.selectedProvider = response.data.active_provider;
                 
-                // Set the default Model to the first Model of the current Provider
+                // Set the model based on provider's configured model or default to first model
                 if (this.selectedProvider && this.providers[this.selectedProvider]) {
                     const provider = this.providers[this.selectedProvider];
                     if (provider.models && provider.models.length > 0) {
-                        this.selectedModel = provider.models[0];
+                        // Try to find the configured model first
+                        let configuredModel = null;
+                        if (provider.model_name) {
+                            configuredModel = provider.models.find(model => model.id === provider.model_name);
+                        }
+                        // Use configured model if found, otherwise use first model
+                        this.selectedModel = configuredModel || provider.models[0];
                     }
                 }
             } catch (error) {
@@ -91,8 +97,13 @@ const app = createApp({
         selectProvider(providerId) {
             this.selectedProvider = providerId;
             this.showProviderList = false;
-            // Reset model selection when provider changes
-            this.selectedModel = null;
+            
+            // Auto-select the first model of the new provider
+            if (this.providers[providerId] && this.providers[providerId].models && this.providers[providerId].models.length > 0) {
+                this.selectedModel = this.providers[providerId].models[0];
+            } else {
+                this.selectedModel = null;
+            }
             
             // Call API to change provider
             axios.post('/api/set-provider', {
