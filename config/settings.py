@@ -37,7 +37,26 @@ def load_settings():
         if settings_path.exists():
             try:
                 with open(settings_path, 'r', encoding='utf-8') as f:
-                    settings = json.load(f)
+                    content = f.read()
+                    # Remove JSON comments (lines starting with //)
+                    lines = content.split('\n')
+                    cleaned_lines = []
+                    for line in lines:
+                        stripped = line.strip()
+                        if stripped.startswith('//'):
+                            continue
+                        # Remove inline comments
+                        if '//' in line:
+                            comment_pos = line.find('//')
+                            # Check if // is inside a string
+                            before_comment = line[:comment_pos]
+                            quote_count = before_comment.count('"') - before_comment.count('\\"')
+                            if quote_count % 2 == 0:  # Even number of quotes means // is not inside a string
+                                line = line[:comment_pos].rstrip()
+                        cleaned_lines.append(line)
+                    
+                    cleaned_content = '\n'.join(cleaned_lines)
+                    settings = json.loads(cleaned_content)
                     print(f"Successfully loaded settings from {settings_path}")
                     return settings
             except (json.JSONDecodeError, IOError) as e:
