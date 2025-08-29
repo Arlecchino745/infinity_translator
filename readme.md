@@ -14,16 +14,7 @@ Infinity Translator is a software that utilizes large language models for long t
 - Preprocesses Markdown documents to optimize the visual appearance of translations 🎨
 - Displays translation progress in real-time and automatically saves translation results ⏱️
 
-## Quick Start!
-
-**NOTICE:Unfortunately, due to some technical issues, this release only supports translation work using Google Gemini 2.0 Flash via OpenRouter. This issue will be prioritized in subsequent releases.**
-
-1. Download the latest release from the [Releases](https://github.com/Arlecchino745/infinity_translator/releases) page.
-2. Extract the downloaded zip file.
-3. Open the _internal folder, copy .env.example and rename it to .env, then fill in the API key.
-4. Run `infinity_translator.exe` to start the application.
-
-## Start from the source code (dev)
+## Start from the source code
 
 1. Clone the project and switch to the project folder:
 ```bash
@@ -58,7 +49,7 @@ python web_app.py
 ```
 Then enter `localhost:8000` or `127.0.0.1:8000` in your browser's address bar and confirm. 🎉
 
-### Application Settings Configuration (start from the source code only)⚙️
+### Application Settings Configuration  
 
 The project contains two configuration files:
 - `config/settings.json` - Default configuration file, should not be modified

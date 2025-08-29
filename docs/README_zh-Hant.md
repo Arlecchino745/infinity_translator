@@ -14,15 +14,6 @@ Infinity Translator 是一款利用大型語言模型進行長文本翻譯的軟
 - 預處理 Markdown 文檔，以優化翻譯的視覺外觀 🎨
 - 實時顯示翻譯進度並自動保存翻譯結果 ⏱️
 
-## 快速開始！
-
-**注意：遺憾的是，由於一些技術問題，此版本僅支援透過 OpenRouter 使用 Google Gemini 2.0 Flash 進行翻譯工作。此問題將在後續版本中優先解決。**
-
-1. 從 [Releases](https://github.com/Arlecchino745/infinity_translator/releases) 頁面下載最新版本。
-2. 解壓縮下載的 zip 檔案。
-3. 開啟 _internal 資料夾，複製 .env.example 並重新命名為 .env，然後填入 API 金鑰。
-4. 執行 `infinity_translator.exe` 以啟動應用程式。
-
 ## 從原始程式碼開始（開發版）
 
 1. 克隆專案並切換到專案資料夾：
@@ -58,7 +49,7 @@ python web_app.py
 ```
 然後在瀏覽器的網址列中輸入 `localhost:8000` 或 `127.0.0.1:8000` 並確認。 🎉
 
-### 應用程式設定配置（僅限從原始程式碼啟動）⚙️
+### 應用程式設定配置 ⚙️
 
 該專案包含兩個配置文件：
 - `config/settings.json` - 預設配置文件，不應修改
