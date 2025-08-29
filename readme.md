@@ -14,6 +14,13 @@ Infinity Translator is a software that utilizes large language models for long t
 - Preprocesses Markdown documents to optimize the visual appearance of translations 🎨
 - Displays translation progress in real-time and automatically saves translation results ⏱️
 
+## Quick Start!
+
+1. Download the latest version from the [Releases](https://github.com/Arlecchino745/infinity_translator/releases) page.
+2. Extract the downloaded zip file.
+3. Open the _internal folder, copy .env.example and rename it to .env, then fill in the API key.
+4. Run `infinity_translator.exe` to start the application.
+
 ## Start from the source code
 
 1. Clone the project and switch to the project folder:

@@ -14,6 +14,13 @@ Infinity Translatorは、大規模言語モデルを利用した長文翻訳ソ�
 - Markdownドキュメントを前処理して、翻訳の見栄えを最適化 🎨
 - 翻訳の進捗状況をリアルタイムで表示し、翻訳結果を自動的に保存 ⏱️
 
+## クイックスタート！
+
+1. [Releases](https://github.com/Arlecchino745/infinity_translator/releases)ページから最新バージョンをダウンロードします。
+2. ダウンロードしたzipファイルを解凍します。
+3. _internalフォルダを開き、.env.exampleをコピーして.envに名前を変更し、APIキーを入力します。
+4. `infinity_translator.exe`を実行してアプリケーションを起動します。
+
 ## ソースコードから開始（開発）
 
 1. プロジェクトをクローンし、プロジェクトフォルダに切り替えます。

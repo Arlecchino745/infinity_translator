@@ -14,6 +14,13 @@ Infinity Translator는 대형 언어 모델을 활용하여 긴 텍스트를 번
 - 번역의 시각적 표현을 최적화하기 위해 Markdown 문서 전처리 🎨
 - 번역 진행 상황을 실시간으로 표시하고 번역 결과를 자동으로 저장 ⏱️
 
+## 빠른 시작!
+
+1. [Releases](https://github.com/Arlecchino745/infinity_translator/releases) 페이지에서 최신 버전을 다운로드하세요.
+2. 다운로드한 zip 파일의 압축을 해제합니다.
+3. _internal 폴더를 열고, .env.example을 복사하여 .env로 이름을 바꾼 다음, API 키를 입력합니다.
+4. `infinity_translator.exe`를 실행하여 애플리케이션을 시작합니다.
+
 ## 소스 코드에서 시작 (개발)
 
 1. 프로젝트를 복제하고 프로젝트 폴더로 전환합니다:

@@ -14,6 +14,13 @@ Infinity Translator 是一款利用大型語言模型進行長文本翻譯的軟
 - 預處理 Markdown 文檔，以優化翻譯的視覺外觀 🎨
 - 實時顯示翻譯進度並自動保存翻譯結果 ⏱️
 
+## 快速開始！
+
+1. 從 [Releases](https://github.com/Arlecchino745/infinity_translator/releases) 頁面下載最新版本。
+2. 解壓下載的 zip 檔案。
+3. 打開 _internal 資料夾，複製 .env.example 並重新命名為 .env，然後填寫 API 金鑰。
+4. 執行 `infinity_translator.exe` 啟動應用程式。
+
 ## 從原始程式碼開始（開發版）
 
 1. 克隆專案並切換到專案資料夾：
